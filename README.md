@@ -18,7 +18,10 @@ From this folder run `python -m http.server 8000`, then open `http://localhost:8
 ## Contents and behaviour
 
 - Click a country name, polygon, search result or index entry for country details.
-- Three country tabs: Country atlas, BCS study, Topics.
+- Three country tabs: Country atlas, Study, Topics.
+- The compact toolbar has two dependent dropdowns: **Category → Item**. Institutions offers UN, UNICEF, World Bank, Commonwealth and other institutions; Membership offers SAARC, NATO, G7 and other groups. Straits, canals, control lines, oceans, seas, mountains and study topics have their own item lists.
+- Layer checkboxes are inside the collapsed **Layers** menu. Changing category clears the previous item and effects; Reset returns to the world view.
+- Choosing an item opens its facts and sources in the side panel. **Locate on map** in Topic Explorer does the same and preserves the located map position when the layout changes.
 - Topics opens a searchable library with category, country, Nobel category/year and legislature structure filters.
 - Membership highlights countries in selected organisations. BRICS partner status and historical OPEC membership are separate data fields, not silently combined with full membership.
 - Country tags on Nobel records mean reported birthplace / award affiliation, not citizenship. Organisational laureates do not receive invented birthplaces.
@@ -33,16 +36,10 @@ Datasets are dated snapshots, not live feeds. An empty country/topic result mean
 
 No site has been published automatically and no PDF has been created. PDF conversion remains pending HTML review.
 
-## Control lines and boundary references
+## Latest verification
 
-The **Control / boundary reference** selector above the map and **Control lines & boundaries** topic category contain 25 classified entries. They distinguish military control/position lines, armistice/disengagement lines, withdrawal-verification lines, buffer zones, disputed or historical boundaries, defensive systems and latitude references.
+The final interface uses neutral branding: “Geography · History · World affairs”. The visible “BCS preparation” wording was removed; source references to historical exam questions remain as evidence inside the coverage material.
 
-Downloaded Natural Earth source geometry supplies 15 route segments for Korean MDL/DMZ, Cyprus buffer/ceasefire references, Golan disengagement context and generic India–Pakistan control-line context. Dashed overlays preserve source classifications, including “please verify”. Cross markers locate named entries. Lines without sourced route geometry remain markers. The LoC, LAC and Siachen AGPL are not treated as interchangeable.
+35 DOM-emulation/runtime and static-asset checks passed. Targeted live desktop-browser checks also passed: Institutions → UNICEF, Membership → G7, and Topic Explorer → Ancient Egypt → Locate on map with the matching side panel and retained 10× zoom. Mobile visual layout was not browser-tested. See `validation.json`.
 
-The India–Pakistan source uses the generic label “Line of control” for several segments, including southern Working Boundary context. The combined source overlay is **not** one certified LoC route and does not establish an agreed extension beyond NJ9842. Golan “Ceasefire Lines 1974” and “UNDOF” source layers are agreement context, not independently surveyed Alpha/Bravo linework or live deployments. These distinctions appear in the topic facts.
-
-Natural Earth’s land-boundary data is public domain: https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_10m_admin_0_boundary_lines_land.geojson. Its original line names, classes, feature ids and adjacent-country attributes are retained in `data/atlas.json` under `controlRoutes`.
-
-Built 9 October 2026. Base topics use the 8 October snapshot; control-line content was reviewed on 9 October. There are 13 topic categories, 414 non-Nobel study records, 1,033 Nobel award records and 193 IPU parliamentary records. Coverage is curated rather than exhaustive.
-
-26 Node DOM-emulation/runtime and static-asset checks passed, including line classifications, source provenance, map selection and layer toggles, alongside the original topic/country functionality. `validation.json` records the checks. Live-browser layout QA remains unverified in this environment. The worldwide historical/Indigenous table remains illustrative and still needs individual source auditing.
+G7 and Commonwealth membership lists and UNICEF institutional details were checked against their official sources on 9 October 2026. The G7 filter highlights seven countries; EU participation is described separately. Commonwealth has 56 countries in the cited list.

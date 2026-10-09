@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "method": "Node DOM-emulation runtime and static asset checks; not a live browser",
-  "checks": 26,
+  "checks": 35,
   "details": [
     "Static edition loads four local JSON files under a GitHub project subpath",
     "All original country polygons render; details initially hidden",
@@ -27,11 +27,20 @@
     "Pages assets are all relative and bundled; .nojekyll present",
     "Record ids and country tags are valid",
     "No Nobel motivation/article text is redistributed",
+    "Only two top-level selects remain; child starts disabled and layers are collapsed",
+    "Institution category exposes requested examples and shows UNICEF details",
+    "Changing category clears child value, stale detail panel and membership effects",
+    "Straits and canals follow their category and show geographic details",
+    "Membership includes G7 and Commonwealth and stays active while reading a country",
+    "Every category can populate its dependent dropdown and reset cleanly",
+    "Preparation branding is removed from visible UI",
+    "Locate on map from Topic Explorer opens the same topic in the side panel",
+    "Opening topic details preserves the located position when map layout resizes",
     "Standalone companion runs without fetching files",
     "A failed local data load gives a useful visible error"
   ],
   "counts": {
-    "curated": 414,
+    "curated": 417,
     "nobelAwards": 1033,
     "nobelLaureates": 1025,
     "parliaments": 193,
@@ -41,5 +50,13 @@
   "categories": 13,
   "sourceSnapshot": "2026-10-08; control lines 2026-10-09",
   "built": "2026-10-09",
-  "browserQA": "Live-browser visual QA not yet verified"
+  "browserQA": "Passed targeted live desktop-browser checks on 9 October 2026; mobile layout was not browser-tested.",
+  "browserChecks": [
+    "Category -> Institutions populates UNICEF, UN, World Bank and Commonwealth choices",
+    "Institutions -> UNICEF opens headquarters and source details",
+    "Category -> Membership -> G7 highlights its seven countries and opens the details panel",
+    "Topic Explorer -> Civilisations -> Ancient Egypt -> Locate on map opens the matching side panel",
+    "Map retains 10x focus after the topic side panel changes the layout",
+    "Visible branding reads Geography, History and World affairs"
+  ]
 }

@@ -29,6 +29,16 @@ Open the Pages URL shown by GitHub after deployment completes.
 All required CSS, JavaScript, map data, and study data are included.
 No backend, API key, npm installation, or build command is required.
 
+USING THE NEW SELECTORS
+Choose Category first, then select the matching Item:
+  Institutions > UN / UNICEF / World Bank / Commonwealth
+  Membership > SAARC / NATO / G7 / other groups
+  Straits & passages > named straits
+  Control lines & boundaries > named control lines
+Other categories follow the same pattern. Layers contains the map toggles.
+Selecting an item opens its information beside the map. Locate on map in
+Topic Explorer also opens the matching information in the side panel.
+
 For a local HTTP preview, run this command from this folder:
   python -m http.server 8000
 Then open:

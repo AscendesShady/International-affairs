@@ -13,6 +13,7 @@ const records=ATLAS.countries, allCountries=Object.values(records).sort((a,b)=>a
 const svg=d3.select('#world-map'), stage=document.getElementById('map-stage');
 const projection=d3.geoEqualEarth(), path=d3.geoPath(projection);
 let width=1000,height=680,selected=null,currentTab='atlas',transform=d3.zoomIdentity,lastLayout=0;
+let activeMapPoint=null;
 const baseAreas=new Map();
 const colours=['#d7dfc6','#e3dcc5','#cfddcd','#cbdedc','#d8d8e7','#e6d7cc','#d0dce6'];
 const root=svg.append('g'), grat=root.append('path').attr('class','graticule');
@@ -65,11 +66,11 @@ function layoutLabels(){
  // Reference latitudes appear only for the selected country's related named line.
  references.style('display',lat=>layer('lines')&&selected&&ATLAS.features.some(f=>f.kind==='line'&&related(f)&&f.name.startsWith(lat+'th parallel')||f.kind==='line'&&related(f)&&f.name.startsWith(lat+'nd parallel')||f.kind==='line'&&related(f)&&f.name.startsWith(lat+'st parallel'))?null:'none');
 }
-function resize(){const r=stage.getBoundingClientRect();if(Math.abs(width-r.width)<1&&Math.abs(height-r.height)<1&&lastLayout)return;width=r.width;height=r.height;lastLayout++;svg.attr('viewBox',`0 0 ${width} ${height}`);projection.fitExtent([[18,28],[width-18,height-105]],{type:'Sphere'});baseAreas.clear();for(const f of polygons)baseAreas.set(f.properties.code,path.area(f));countries.attr('d',path);grat.attr('d',path(d3.geoGraticule().step([30,30])()));references.attr('d',lat=>path({type:'LineString',coordinates:d3.range(-179,180,2).map(x=>[x,lat])}));zoom.extent([[0,0],[width,height]]).translateExtent([[-80,-80],[width+80,height+80]]);svg.call(zoom.transform,d3.zoomIdentity);document.getElementById('loading').style.display='none';if(selected)focusCountry(selected,false)}
+function resize(){const r=stage.getBoundingClientRect();if(Math.abs(width-r.width)<1&&Math.abs(height-r.height)<1&&lastLayout)return;width=r.width;height=r.height;lastLayout++;svg.attr('viewBox',`0 0 ${width} ${height}`);projection.fitExtent([[18,28],[width-18,height-105]],{type:'Sphere'});baseAreas.clear();for(const f of polygons)baseAreas.set(f.properties.code,path.area(f));countries.attr('d',path);grat.attr('d',path(d3.geoGraticule().step([30,30])()));references.attr('d',lat=>path({type:'LineString',coordinates:d3.range(-179,180,2).map(x=>[x,lat])}));zoom.extent([[0,0],[width,height]]).translateExtent([[-80,-80],[width+80,height+80]]);svg.call(zoom.transform,d3.zoomIdentity);document.getElementById('loading').style.display='none';if(selected)focusCountry(selected,false);else if(activeMapPoint)locateTopic(activeMapPoint,false)}
 function countryPart(code){const f=polygonMap.get(code);if(!f)return null;const polys=f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates];const anchor=records[code].xy;let best=polys[0],bestScore=Infinity;for(const p of polys){const poly={type:'Polygon',coordinates:p};const center=d3.geoCentroid(poly);let dx=Math.abs(center[0]-anchor[0]);dx=Math.min(dx,360-dx);const score=dx*dx+(center[1]-anchor[1])**2;if(score<bestScore){bestScore=score;best=p}}return {type:'Feature',geometry:{type:'Polygon',coordinates:best},properties:{}}}
 function focusCountry(code,animate=true){const c=records[code],part=countryPart(code);let t;if(part){const b=path.bounds(part),dx=b[1][0]-b[0][0],dy=b[1][1]-b[0][1];const k=Math.max(1.8,Math.min(85,.65/Math.max(dx/width,dy/height)));const p=projection(c.xy);t=d3.zoomIdentity.translate(width*.5-k*p[0],height*.44-k*p[1]).scale(k)}else{const p=projection(c.xy),k=25;t=d3.zoomIdentity.translate(width*.5-k*p[0],height*.44-k*p[1]).scale(k)}
  const motion=animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches;svg.interrupt();(motion?svg.transition().duration(550):svg).call(zoom.transform,t);}
-function selectCountry(code){if(!records[code])return;activeGroup=null;setGroupHighlight();root.selectAll('.topic-locator').remove();countryTopicShown=12;selected=code;currentTab='atlas';countries.classed('selected',d=>d.properties.code===code).classed('neighbour',d=>records[code].borders.includes(d.properties.code));drawCapitals();renderPane();closeSearch();document.getElementById('country-search').value='';focusCountry(code);document.getElementById('country-pane').scrollTop=0;layoutLabels();if(window.innerWidth<=760)document.getElementById('country-pane').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
+function selectCountry(code){if(!records[code])return;activeMapPoint=null;root.selectAll('.topic-locator').remove();countryTopicShown=12;selected=code;currentTab='atlas';countries.classed('selected',d=>d.properties.code===code).classed('neighbour',d=>records[code].borders.includes(d.properties.code));drawCapitals();renderPane();closeSearch();document.getElementById('country-search').value='';focusCountry(code);document.getElementById('country-pane').scrollTop=0;layoutLabels();if(window.innerWidth<=760)document.getElementById('country-pane').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});}
 function drawCapitals(){const g=capitalGroup.selectAll('g').data(selected?records[selected].capitalPoints:[],d=>d.name).join('g');g.selectAll('*').remove();g.append('path').attr('d',d3.symbol().type(d3.symbolStar).size(85)()).attr('fill','#ba4d23').attr('stroke','white').attr('stroke-width',1.2);g.append('text').attr('x',11).attr('y',4).text(d=>d.name).attr('font-size',13).attr('fill','#963c19').attr('font-weight',700).attr('paint-order','stroke').attr('stroke','#fff').attr('stroke-width',3).style('pointer-events','none');}
 function closePane(){selected=null;document.getElementById('details-pane').hidden=true;document.getElementById('empty-pane').hidden=false;countries.classed('selected',false).classed('neighbour',false);drawCapitals();layoutLabels()}
 function cards(items,empty){return items.length?items.map(f=>`<div class="feature-card"><b>${esc(f.name)}</b><p>${esc(f.detail)}</p>${(f.contextCountries||[]).includes(selected)?'<p class="note">Indirect maritime-trade context for Bangladesh. This strait is outside Bangladesh.</p>':''}${link(f.source,'Reference / further reading')}</div>`).join(''):`<p class="note">${esc(empty)}</p>`}
@@ -85,14 +86,14 @@ function renderPane(){const c=records[selected],details=document.getElementById(
  let atlas=section('Capital city',`<p>${capText}</p>${c.capitalNote?`<p class="note">${esc(c.capitalNote)}</p>`:''}${c.capitalSource?link(c.capitalSource):''}`)+section('Currency',`<p>${cur}</p>${c.currencyNote?`<p class="note">${esc(c.currencyNote)}</p>`:''}${c.currencySource?link(c.currencySource):''}`)+section('Land borders & neighbours',`<div class="chips">${neighbours.map(n=>`<button data-country-select="${esc(n.code)}">${esc(n.name)}</button>`).join('')}</div>${!neighbours.length?`<p class="note">${c.type.includes('Special')||!c.unMember?'No land-neighbour entry in the country-facts dataset.':'No land neighbours listed.'}</p>`:''}${boundary}`)+section('Seas, gulfs & bays',cards(cs.filter(f=>f.kind==='sea'),c.landlocked?'No ocean-connected coastal sea. Inland lakes, if relevant, appear under geography.':'No named adjacent sea is curated here; consult the ocean-basin context below.'))+section('Ocean-basin context',oceans.length?`<p>${oceans.map(f=>esc(f.name)).join(' · ')}</p><p class="note">Selected coastal and sea-connected basins. This does not imply a direct open-ocean shoreline or an EEZ claim.</p>`:`<p class="note">${c.landlocked?'No ocean coastline: this country is landlocked.':'No ocean-basin assignment curated for this special unit.'}</p>`)+section('Important straits & passages',cards(cs.filter(f=>f.kind==='strait'),'No selected major strait is associated with this country in this atlas.'))+section('Important canals',cards(cs.filter(f=>f.kind==='canal'),'No selected major international-shipping canal is associated with this country.'))+section('Control lines, named boundaries & historical lines',cards(cs.filter(f=>f.kind==='line'),'No named line is curated for this country. Ordinary land boundaries remain visible on the map.'))+section('Historical & Indigenous peoples',people);
  let bcs=section('Country facts to revise',`<p><b>Region:</b> ${esc(c.region)} · ${esc(c.subregion)}</p><p><b>Geographic status:</b> ${esc(coast)}</p>${c.area?`<p><b>Area in source:</b> ${c.area.toLocaleString()} km²</p>`:''}<p><b>Languages in source:</b> ${esc(c.languages.join(', ')||'Not specified for this unit')}</p><p><b>UN membership:</b> ${c.unMember?'Member state':'Not listed as a UN member state in the source'}</p><p class="note">These are source-dataset facts, not a uniform current statistical census. Area definitions and political status require context.</p>`);
  const orgs=ATLAS.organisations.filter(o=>o.members.includes(selected));
- bcs+=section('Selected organisation memberships',orgs.length?orgs.map(o=>`<div class="org"><b>${esc(o.name)}</b><p>${esc(o.full)}</p><p>${o.members.length} members · established ${o.year}<br>Secretariat / institutions: ${esc(o.hq)}</p>${o.note?`<p class="note">${esc(o.note)}</p>`:''}${link(o.source,'Organisation source')}</div>`).join(''):'<p class="note">No membership among the ten organisations covered here. This is not a statement about membership of all international organisations.</p>');
+ bcs+=section('Selected organisation memberships',orgs.length?orgs.map(o=>`<div class="org"><b>${esc(o.name)}</b><p>${esc(o.full)}</p><p>${o.members.length} members · established ${o.year}<br>Secretariat / institutions: ${esc(o.hq)}</p>${o.note?`<p class="note">${esc(o.note)}</p>`:''}${link(o.source,'Organisation source')}</div>`).join(''):'<p class="note">No membership among the twelve organisations covered here. This is not a statement about membership of all international organisations.</p>');
  const hq=ATLAS.headquarters.filter(o=>o.host===selected),horg=ATLAS.organisations.filter(o=>o.host===selected);
  bcs+=section('Headquarters & institutions',hq.length||horg.length?[...horg.map(o=>`<div class="org"><b>${esc(o.name)}</b><p>${esc(o.hq)} · established ${o.year}</p>${link(o.source)}</div>`),...hq.map(o=>`<div class="org"><b>${esc(o.name)}</b><p>${esc(o.city)} · established ${o.year}</p>${link(o.source)}</div>`)].join(''):'<p class="note">No selected major headquarters is curated here.</p>');
  bcs+=section('Physical geography, ports & ancient places',cards(cs.filter(f=>f.kind==='study'),'Use the capital, neighbours, region and landlocked/coastal distinction as the core revision facts.'));
- bcs+=section('BCS study cues',c.bcsNotes?`<ul>${c.bcsNotes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:`<ul><li>Locate ${esc(c.name)} and its capital${c.capital.length>1?' / administrative seats':''}.</li><li>Match the currency name with its code.</li><li>Check neighbouring countries, region and landlocked/coastal status.</li><li>Distinguish historical peoples from modern Indigenous and heritage communities.</li></ul>`);
+ bcs+=section('Study cues',c.bcsNotes?`<ul>${c.bcsNotes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:`<ul><li>Locate ${esc(c.name)} and its capital${c.capital.length>1?' / administrative seats':''}.</li><li>Match the currency name with its code.</li><li>Check neighbouring countries, region and landlocked/coastal status.</li><li>Distinguish historical peoples from modern Indigenous and heritage communities.</li></ul>`);
  bcs+=section('Explore more study topics',`<button id="country-topics-shortcut" class="primary">Open topics for ${esc(c.name)}</button>`);if(c.unNote)bcs+=section('UN status clarification',`<p>${esc(c.unNote)}</p>`);if(c.bcsSources)bcs+=section('Country-specific sources',`<div class="sources-small">${c.bcsSources.map(([n,s])=>link(s,n)).join('')}</div>`);
- bcs+=section('Revision context','<p class="note">Use the BCS coverage button for the source-backed topic selection. Old question keys are dated evidence of topics, not proof that their answers remain current. This atlas covers map-related general knowledge, not the whole BCS syllabus.</p>');
- details.innerHTML=`<div class="pane-head"><span class="eyebrow">${esc(c.region)} · ${esc(c.code)}</span><button class="close-pane" id="close-pane" aria-label="Close country details">×</button><h1>${esc(c.name)}</h1><p>${esc(c.official)}</p><div class="pane-tabs" role="tablist" aria-label="Country detail sections"><button role="tab" id="atlas-tab" data-tab="atlas" aria-controls="tab-atlas" aria-selected="true">Country atlas</button><button role="tab" id="bcs-tab" data-tab="bcs" aria-controls="tab-bcs" aria-selected="false">BCS study</button><button role="tab" id="topics-tab" data-tab="topics" aria-controls="tab-topics" aria-selected="false">Topics</button></div></div><div class="pane-body"><div class="summary"><div><label>Geographic status</label><strong>${esc(coast)}</strong></div><div><label>Map entity</label><strong>${esc(c.type)}</strong></div></div><button class="focus-button" id="focus-country">Focus on ${esc(c.name)}</button>${c.dataNote?`<p class="note">${esc(c.dataNote)}</p>`:''}<div id="tab-atlas" class="panel-tab" role="tabpanel" aria-labelledby="atlas-tab">${atlas}</div><div id="tab-bcs" class="panel-tab" role="tabpanel" aria-labelledby="bcs-tab" hidden>${bcs}</div><div id="tab-topics" class="panel-tab" role="tabpanel" aria-labelledby="topics-tab" hidden></div></div>`;
+ bcs+=section('Revision context','<p class="note">Use the Topic coverage button for the source-backed topic selection. Old question keys are dated evidence of topics, not proof that their answers remain current. This atlas covers map-related general knowledge, not the whole BCS syllabus.</p>');
+ details.innerHTML=`<div class="pane-head"><span class="eyebrow">${esc(c.region)} · ${esc(c.code)}</span><button class="close-pane" id="close-pane" aria-label="Close country details">×</button><h1>${esc(c.name)}</h1><p>${esc(c.official)}</p><div class="pane-tabs" role="tablist" aria-label="Country detail sections"><button role="tab" id="atlas-tab" data-tab="atlas" aria-controls="tab-atlas" aria-selected="true">Country atlas</button><button role="tab" id="bcs-tab" data-tab="bcs" aria-controls="tab-bcs" aria-selected="false">Study</button><button role="tab" id="topics-tab" data-tab="topics" aria-controls="tab-topics" aria-selected="false">Topics</button></div></div><div class="pane-body"><div class="summary"><div><label>Geographic status</label><strong>${esc(coast)}</strong></div><div><label>Map entity</label><strong>${esc(c.type)}</strong></div></div><button class="focus-button" id="focus-country">Focus on ${esc(c.name)}</button>${c.dataNote?`<p class="note">${esc(c.dataNote)}</p>`:''}<div id="tab-atlas" class="panel-tab" role="tabpanel" aria-labelledby="atlas-tab">${atlas}</div><div id="tab-bcs" class="panel-tab" role="tabpanel" aria-labelledby="bcs-tab" hidden>${bcs}</div><div id="tab-topics" class="panel-tab" role="tabpanel" aria-labelledby="topics-tab" hidden></div></div>`;
  document.getElementById('close-pane').onclick=closePane;document.getElementById('focus-country').onclick=()=>focusCountry(selected);
  details.querySelectorAll('[data-tab]').forEach(b=>{b.onclick=()=>{currentTab=b.dataset.tab;details.querySelectorAll('[data-tab]').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===currentTab));document.getElementById('tab-atlas').hidden=currentTab!=='atlas';document.getElementById('tab-bcs').hidden=currentTab!=='bcs';document.getElementById('tab-topics').hidden=currentTab!=='topics';if(currentTab==='topics')renderCountryTopics()}});
  document.getElementById('country-topics-shortcut').onclick=()=>document.getElementById('topics-tab').click();details.querySelectorAll('[data-country-select]').forEach(b=>b.onclick=()=>selectCountry(b.dataset.countrySelect));
@@ -108,7 +109,7 @@ const dialog=document.getElementById('info-dialog');document.getElementById('clo
 function openDialog(title,body){document.getElementById('dialog-title').textContent=title;document.getElementById('dialog-body').innerHTML=body;dialog.showModal()}
 document.getElementById('country-index-btn').onclick=()=>{openDialog('Country index',`<p>Select a country name to open its details. Includes countries, territories and special map units; this list is not a count of sovereign states.</p><label class="country-index-label" for="country-picker">Country or territory</label><select class="country-picker" id="country-picker"><option value="">Choose a country…</option>${allCountries.map(c=>`<option value="${esc(c.code)}">${esc(c.name)}</option>`).join('')}</select><div class="country-index">${allCountries.map(c=>`<button data-index="${esc(c.code)}">${esc(c.name)}</button>`).join('')}</div>`);document.getElementById('country-picker').onchange=e=>{if(e.target.value){dialog.close();selectCountry(e.target.value)}};document.querySelectorAll('[data-index]').forEach(b=>b.onclick=()=>{dialog.close();selectCountry(b.dataset.index)})};
 const syllabusUrl='https://bpsc.gov.bd/pages/psc-exams/৫০তম-বি-সি-এস-পরীক্ষা-২০২৫-এর-প্রিলিমিনারি-টেস্টের-mcq-type-সিলেবাস-299ca4-69568a5d35ce18e1c05ad0af';
-document.getElementById('study-btn').onclick=()=>openDialog('BCS coverage & question patterns',`
+document.getElementById('study-btn').onclick=()=>openDialog('Topic coverage & question patterns',`
 <span class="eyebrow">Research snapshot · 8 October 2026</span><p>This atlas focuses on the map-related parts of Bangladesh Affairs, International Affairs, and Geography, Environment & Disaster Management. It is a geography companion, not a complete BCS course.</p>
 <p>The exam-specific <b>50th BCS preliminary syllabus</b> assigns <b>25 marks to Bangladesh Affairs, 25 to International Affairs, and 10 to Geography / Environment / Disaster Management</b>. The generic BPSC overview still displays the older 30 / 20 / 10 allocation. Follow the syllabus for your particular examination. ${link(syllabusUrl,'BPSC exam-specific syllabus')}</p>
 <h3>What the sampled questions support</h3><table><thead><tr><th>Observed topic</th><th>Added to the atlas</th></tr></thead><tbody>
@@ -142,16 +143,7 @@ function setGroupHighlight(){
  const members=activeGroup?new Set(activeGroup.members):null;
  countries.classed('group-member',d=>members?.has(d.properties.code)||false).classed('group-outside',d=>members&&!members.has(d.properties.code));
  labels.classed('group-outside',d=>members&&!members.has(d.code));dots.classed('group-outside',d=>members&&!members.has(d.code));
- const context=document.getElementById('group-context');context.hidden=!activeGroup;
- document.getElementById('clear-group').hidden=!activeGroup;
- document.getElementById('group-filter').value=activeGroup?.name||'';
- context.innerHTML=activeGroup?`<b>${esc(activeGroup.name)}</b> · ${activeGroup.members.length} countries in the cited membership list <button id="group-read">Read context</button>`:'';
- if(activeGroup)document.getElementById('group-read').onclick=()=>openTopics({category:'organisations',query:activeGroup.name,country:''});
 }
-const groupSelect=document.getElementById('group-filter');
-groupSelect.innerHTML='<option value="">All countries</option>'+ATLAS.organisations.map(o=>`<option value="${esc(o.name)}">${esc(o.name)} · ${o.members.length}</option>`).join('');
-groupSelect.onchange=()=>{activeGroup=ATLAS.organisations.find(o=>o.name===groupSelect.value)||null;setGroupHighlight()};
-document.getElementById('clear-group').onclick=()=>{activeGroup=null;setGroupHighlight()};
 function shortTopicCard(r){
  const countryLinks=r.countries.slice(0,6).map(c=>records[c]?`<button class="country-link" data-topic-country="${esc(c)}">${esc(records[c].name)}</button>`:'').join('');
  let awardBasis='';
@@ -162,11 +154,13 @@ function shortTopicCard(r){
 }
 function wireTopicActions(container){
  container.querySelectorAll('[data-topic-country]').forEach(b=>b.onclick=()=>{if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');selectCountry(b.dataset.topicCountry)});
- container.querySelectorAll('[data-locate-topic]').forEach(b=>b.onclick=()=>{const r=topicById.get(b.dataset.locateTopic);if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');locateTopic(r)});
- container.querySelectorAll('[data-members-topic]').forEach(b=>b.onclick=()=>{const r=topicById.get(b.dataset.membersTopic);activeGroup=ATLAS.organisations.find(o=>o.name===r.title);if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');setGroupHighlight();svg.transition().duration(250).call(zoom.transform,d3.zoomIdentity)});
+ container.querySelectorAll('[data-locate-topic]').forEach(b=>b.onclick=()=>{const r=topicById.get(b.dataset.locateTopic);if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');showLocatedTopic(r)});
+ container.querySelectorAll('[data-members-topic]').forEach(b=>b.onclick=()=>{const r=topicById.get(b.dataset.membersTopic);if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');showMembershipSelection(r.title)});
 }
-function locateTopic(r){
- const pt=projection(r.xy),k=10;svg.transition().duration(400).call(zoom.transform,d3.zoomIdentity.translate(width*.5-k*pt[0],height*.45-k*pt[1]).scale(k));
+function locateTopic(r,animate=true){
+ activeMapPoint=r;
+ const pt=projection(r.xy),k=10,t=d3.zoomIdentity.translate(width*.5-k*pt[0],height*.45-k*pt[1]).scale(k);
+ svg.interrupt();(animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches?svg.transition().duration(400):svg).call(zoom.transform,t);
  const g=root.selectAll('.topic-locator').data([r]).join('g').attr('class','topic-locator').attr('transform',`translate(${pt}) scale(${1/transform.k})`);
  g.selectAll('*').remove();g.append('circle').attr('r',7).attr('fill','#c65d20').attr('stroke','white').attr('stroke-width',2);g.append('text').attr('x',10).attr('y',4).style('font-size','13px').attr('fill','#903d18').attr('paint-order','stroke').attr('stroke','white').attr('stroke-width',3).text(r.title);
 }
@@ -189,7 +183,7 @@ function renderCountryTopics(){
 }
 function openTopics(preset={}){
  Object.assign(libraryState,preset);topicShown=24;dialog.classList.add('topics-dialog');
- openDialog('Topic Explorer',`<div class="library-intro"><span class="eyebrow">BCS study library</span><p>Explore institutions, history and general knowledge, or narrow the records to a country.</p></div><div class="library-layout"><nav class="topic-navigation" aria-label="Topic categories"><button data-library-category="">All topics <span>${KNOWLEDGE.records.length}</span></button>${KNOWLEDGE.metadata.categories.map(c=>`<button data-library-category="${c.id}">${esc(c.label)} <span>${KNOWLEDGE.records.filter(r=>r.category===c.id).length}</span></button>`).join('')}</nav><section class="library-content"><div class="library-filters"><label>Search topics<input id="topic-search" type="search" placeholder="Name, concept, book, author…" value="${esc(libraryState.query)}"></label><label>Country context<select id="topic-country"><option value="">All countries</option>${allCountries.map(c=>`<option value="${esc(c.code)}"${c.code===libraryState.country?' selected':''}>${esc(c.name)}</option>`).join('')}</select></label><label id="nobel-category-label" hidden>Nobel category<select id="nobel-category"><option value="">All prize categories</option><option value="peace">Peace</option><option value="literature">Literature</option><option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="medicine">Physiology or Medicine</option><option value="economics">Economic Sciences · memorial prize</option></select></label><label id="nobel-year-label" hidden>Award year<input id="nobel-year" type="number" min="1901" max="2026" placeholder="Any year" value="${esc(libraryState.year)}"></label><label id="chamber-structure-label" hidden>Parliament structure<select id="chamber-structure"><option value="">All structures</option><option>Unicameral</option><option>Bicameral</option></select></label></div><div class="library-status"><span id="topic-result-count" aria-live="polite"></span><button id="reset-topic-filters">Reset filters</button></div><p id="topic-context-note" class="association-note"></p><div id="topic-results" class="topic-results"></div><button id="more-topics" class="load-more" hidden>Show more records</button><p class="library-footnote">Curated coverage is selective. Source links and snapshot dates appear inside each record. Nobel and IPU data are downloaded snapshots; 2026 Nobel announcements may be incomplete.</p></section></div>`);
+ openDialog('Topic Explorer',`<div class="library-intro"><span class="eyebrow">Study library</span><p>Explore institutions, history and general knowledge, or narrow the records to a country.</p></div><div class="library-layout"><nav class="topic-navigation" aria-label="Topic categories"><button data-library-category="">All topics <span>${KNOWLEDGE.records.length}</span></button>${KNOWLEDGE.metadata.categories.map(c=>`<button data-library-category="${c.id}">${esc(c.label)} <span>${KNOWLEDGE.records.filter(r=>r.category===c.id).length}</span></button>`).join('')}</nav><section class="library-content"><div class="library-filters"><label>Search topics<input id="topic-search" type="search" placeholder="Name, concept, book, author…" value="${esc(libraryState.query)}"></label><label>Country context<select id="topic-country"><option value="">All countries</option>${allCountries.map(c=>`<option value="${esc(c.code)}"${c.code===libraryState.country?' selected':''}>${esc(c.name)}</option>`).join('')}</select></label><label id="nobel-category-label" hidden>Nobel category<select id="nobel-category"><option value="">All prize categories</option><option value="peace">Peace</option><option value="literature">Literature</option><option value="physics">Physics</option><option value="chemistry">Chemistry</option><option value="medicine">Physiology or Medicine</option><option value="economics">Economic Sciences · memorial prize</option></select></label><label id="nobel-year-label" hidden>Award year<input id="nobel-year" type="number" min="1901" max="2026" placeholder="Any year" value="${esc(libraryState.year)}"></label><label id="chamber-structure-label" hidden>Parliament structure<select id="chamber-structure"><option value="">All structures</option><option>Unicameral</option><option>Bicameral</option></select></label></div><div class="library-status"><span id="topic-result-count" aria-live="polite"></span><button id="reset-topic-filters">Reset filters</button></div><p id="topic-context-note" class="association-note"></p><div id="topic-results" class="topic-results"></div><button id="more-topics" class="load-more" hidden>Show more records</button><p class="library-footnote">Curated coverage is selective. Source links and snapshot dates appear inside each record. Nobel and IPU data are downloaded snapshots; 2026 Nobel announcements may be incomplete.</p></section></div>`);
  document.querySelector('.library-filters').insertAdjacentHTML('beforeend',`<label id="control-type-label" hidden>Line classification<select id="control-type"><option value="">All classifications</option>${Object.entries(ATLAS.controlLineTypes).map(([k,v])=>`<option value="${esc(k)}">${esc(v)}</option>`).join('')}</select></label>`);
  document.getElementById('nobel-category').value=libraryState.prize;document.getElementById('chamber-structure').value=libraryState.structure;document.getElementById('control-type').value=libraryState.lineType;
  const update=()=>{libraryState.query=document.getElementById('topic-search').value;libraryState.country=document.getElementById('topic-country').value;libraryState.prize=document.getElementById('nobel-category').value;libraryState.year=document.getElementById('nobel-year').value;libraryState.structure=document.getElementById('chamber-structure').value;libraryState.lineType=document.getElementById('control-type').value;topicShown=24;renderLibraryResults()};
@@ -230,16 +224,141 @@ function updateControlRoutes(){
  controlPaths.attr('d',path).style('display',d=>layer('lines')&&(!activeControl||route===d.properties.group)?null:'none');
  if(activeControl){featureNodes.filter(d=>d.kind==='line').style('display',d=>layer('lines')&&d.name===activeControl&&inView(projection(d.xy))?null:'none');references.style('display','none');}
 }
-const controlSelect=document.getElementById('control-line-filter');
-controlSelect.innerHTML='<option value="">All named lines</option>'+controlTopics.map(t=>`<option value="${esc(t.title)}">${esc(t.title)}</option>`).join('');
-controlSelect.onchange=()=>{activeControl=controlSelect.value;const t=controlTopics.find(r=>r.title===activeControl);document.getElementById('layer-lines').checked=true;if(t)locateTopic(t);else root.selectAll('.topic-locator').remove();document.getElementById('control-line-status').textContent=t?`${ATLAS.controlLineTypes[t.lineType]} · ${t.routeGroup?'source route context + locator':'location marker; no route asserted'}`:'Dashed routes: source snapshots · Crosses: location markers';layoutLabels()};
-document.getElementById('control-line-study').onclick=()=>openTopics({category:'control-lines',country:'',query:activeControl,lineType:''});
+function setControlSelection(name){activeControl=name;const t=controlTopics.find(r=>r.title===activeControl);document.getElementById('layer-lines').checked=true;if(t)locateTopic(t);else root.selectAll('.topic-locator').remove();layoutLabels()}
 controlPaths.on('click',(e,d)=>{e.stopPropagation();openTopics({category:'control-lines',country:'',query:'',lineType:''})});
-const previousSelectCountry=selectCountry;selectCountry=function(code){activeControl='';controlSelect.value='';document.getElementById('control-line-status').textContent='Dashed routes: source snapshots · Crosses: location markers';previousSelectCountry(code)};
+const previousSelectCountry=selectCountry;selectCountry=function(code){activeControl='';previousSelectCountry(code);setGroupHighlight()};
 updateControlRoutes();
 
 // Preserve ordinary dialog widths when moving from the library to another header action.
 for(const id of ['sources-btn','study-btn','country-index-btn']){const b=document.getElementById(id),handler=b.onclick;b.onclick=()=>{dialog.classList.remove('topics-dialog');handler()};}
+
+
+// One dependent category → item pair replaces the separate membership and line selectors.
+const cityLocations={
+ 'New York':[-74,40.71],'Washington, DC':[-77.04,38.9],'London':[-.12,51.51],'Paris':[2.35,48.86],
+ 'Geneva':[6.14,46.2],'Rome':[12.49,41.9],'The Hague':[4.3,52.07],'Vienna':[16.37,48.21],
+ 'Manila':[120.98,14.6],'Beijing':[116.4,39.9],'Jeddah':[39.2,21.5],'Addis Ababa':[38.74,9.03],
+ 'Cairo':[31.24,30.04],'Lyon':[4.84,45.76],'Los Baños':[121.25,14.17],'Cologny':[6.19,46.215],
+ 'Kathmandu':[85.32,27.7],'Dhaka':[90.4,23.8],'Jakarta':[106.82,-6.18],'Istanbul':[28.98,41.01],
+ 'Brussels':[4.35,50.85],'Riyadh':[46.68,24.71]
+};
+function locateCity(label){return Object.entries(cityLocations).find(([n])=>label.includes(n))?.[1]}
+const institutionChoices=[];
+for(const o of ATLAS.organisations){
+ const xy=locateCity(o.hq);
+ institutionChoices.push({key:'institution-'+o.name,label:o.name,kind:'institution',record:{
+  id:'institution-'+o.name,category:'organisations',title:o.name,summary:o.full,period:String(o.year),
+  countries:o.host?[o.host]:[],facts:[`Headquarters / coordination: ${o.hq}`,`Established / coordination began: ${o.year}`,o.note||'',xy?'The map marker locates the headquarters city approximately, not the exact office building.':'No fixed headquarters-city locator is assigned.'],
+  sources:o.sources||[{title:'Official institution reference',url:o.source}],tags:['institution','headquarters'],reviewed:o.reviewed,xy
+ }});
+}
+for(const h of ATLAS.headquarters){
+ let label=h.name==='Commonwealth Secretariat'?'Commonwealth':h.name==='United Nations'?'UN':h.name;
+ if(institutionChoices.some(x=>x.label===label))continue;
+ const xy=locateCity(h.city);
+ institutionChoices.push({key:'institution-'+label,label,kind:'institution',record:{
+  id:'institution-'+label,category:'organisations',title:label,summary:h.name,period:String(h.year),
+  countries:[h.host],facts:[`Headquarters / venue: ${h.city}`,`Established: ${h.year}`,h.note||'',
+  'Institutional location is shown here. This is not a complete member-country list.',xy?'The map marker locates the headquarters city approximately, not the exact office building.':''],
+  sources:[{title:'Institution source',url:h.source}],tags:['institution','headquarters'],reviewed:'2026-10-09',xy
+ }});
+}
+institutionChoices.sort((a,b)=>a.label.localeCompare(b.label));
+function featureChoices(kind){return ATLAS.features.filter(f=>f.kind===kind&&f.name!=='Suez / Panama comparison').map((f,i)=>({key:`feature-${kind}-${i}`,label:f.name,kind:'feature',layer:kind==='study'?'study':kind==='strait'||kind==='canal'?'passages':'oceans',record:{
+ id:`feature-${kind}-${i}`,category:'geography',title:f.name,summary:f.detail,period:'Geographic reference',countries:f.countries,
+ facts:['The locator gives a general position, not a surveyed extent, navigation route or territorial claim.'],
+ sources:[{title:'Reference / further reading',url:f.source}],tags:[kind],reviewed:'2026-10-08',xy:f.xy
+ }})).sort((a,b)=>a.label.localeCompare(b.label))}
+function studyChoices(category){return KNOWLEDGE.records.filter(r=>r.category===category).map(r=>({key:r.id,label:r.title,kind:category==='control-lines'?'control':'topic',record:r})).sort((a,b)=>a.label.localeCompare(b.label))}
+const mountainNames=new Set(['Mount Everest','Himalayas','K2','Andes','Alps','Ural Mountains']);
+const geographyChoices=featureChoices('study');
+const hierarchyCategories=[
+ {id:'institutions',label:'Institutions',itemLabel:'Institution',choices:institutionChoices},
+ {id:'membership',label:'Membership',itemLabel:'Group / alliance',choices:ATLAS.organisations.map(o=>({key:o.name,label:o.name,kind:'membership',organisation:o,record:topicById.get('organisation-'+o.name.toLowerCase())})).sort((a,b)=>a.label.localeCompare(b.label))},
+ {id:'straits',label:'Straits & passages',itemLabel:'Strait / passage',choices:featureChoices('strait')},
+ {id:'canals',label:'Canals',itemLabel:'Canal',choices:featureChoices('canal')},
+ {id:'control-lines',label:'Control lines & boundaries',itemLabel:'Line / boundary reference',choices:studyChoices('control-lines')},
+ {id:'oceans',label:'Oceans',itemLabel:'Ocean',choices:featureChoices('ocean')},
+ {id:'seas',label:'Seas, gulfs & bays',itemLabel:'Sea / gulf / bay',choices:featureChoices('sea')},
+ {id:'mountains',label:'Mountains & ranges',itemLabel:'Mountain / range',choices:geographyChoices.filter(x=>mountainNames.has(x.label))},
+ {id:'geography',label:'Rivers, lakes & places',itemLabel:'Geographic place',choices:geographyChoices.filter(x=>!mountainNames.has(x.label))},
+ ...KNOWLEDGE.metadata.categories.filter(c=>!['organisations','geography','control-lines'].includes(c.id)).map(c=>({id:c.id,label:c.label,itemLabel:'Study item',choices:studyChoices(c.id)}))
+];
+const categorySelect=document.getElementById('map-category'),itemSelect=document.getElementById('map-item');
+const selectionPane=document.getElementById('selection-pane'),selectionStatus=document.getElementById('selection-status');
+let pickerCategory='',pickerItem='';
+categorySelect.innerHTML='<option value="">Choose a category…</option>'+hierarchyCategories.map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join('');
+function populateHierarchyItems(){
+ const category=hierarchyCategories.find(c=>c.id===pickerCategory);
+ itemSelect.disabled=!category;document.getElementById('map-item-label').textContent=category?.itemLabel||'Item';
+ itemSelect.innerHTML=category?`<option value="">Choose ${esc(category.itemLabel.toLocaleLowerCase())}…</option>${category.choices.map(x=>`<option value="${esc(x.key)}">${esc(x.label)}</option>`).join('')}`:'<option value="">Choose a category first</option>';
+ itemSelect.value=pickerItem;
+}
+function clearHierarchyEffects(){
+ activeGroup=null;activeControl='';activeMapPoint=null;setGroupHighlight();root.selectAll('.topic-locator').remove();layoutLabels();
+ selectionPane.hidden=true;selectionStatus.hidden=true;
+}
+function chooseHierarchyCategory(id){
+ clearHierarchyEffects();closePane();pickerCategory=id;pickerItem='';categorySelect.value=id;populateHierarchyItems();
+}
+function showSelectionPanel(choice){
+ const r=choice.record;selected=null;countries.classed('selected',false).classed('neighbour',false);drawCapitals();
+ document.getElementById('empty-pane').hidden=true;document.getElementById('details-pane').hidden=true;selectionPane.hidden=false;
+ const category=hierarchyCategories.find(c=>c.id===pickerCategory);
+ const countryCodes=choice.kind==='membership'?choice.organisation.members:r.countries;
+ selectionPane.innerHTML=`<div class="pane-head"><span class="eyebrow">${esc(category.label)}</span><button class="close-pane" id="close-selection" aria-label="Close selected item">×</button><h1>${esc(r.title)}</h1><p>${esc(r.summary)}</p></div><div class="pane-body">${section('Study details',`<p class="selection-period">${esc(r.period)}</p><ul>${r.facts.filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`)}${countryCodes.length?section(choice.kind==='membership'?'Countries in the cited membership list':'Country context',`<p class="note">${choice.kind==='institution'?'Headquarters / institutional-location context.':choice.kind==='membership'?'Select a country name to open its country panel.':'Country tags identify study context, not automatic membership or nationality.'}</p><div class="chips">${countryCodes.map(c=>`<button data-picker-country="${esc(c)}">${esc(records[c]?.name||c)}</button>`).join('')}</div>`):''}${section('Sources',`<div class="sources-small">${r.sources.map(s=>link(s.url,s.title)).join('')}</div>`)}<p class="note">Source snapshot / reading date: ${esc(r.reviewed)}</p>${topicById.has(r.id)?'<button class="load-more" id="picker-open-library">Open in Topic Explorer</button>':''}</div>`;
+ document.getElementById('close-selection').onclick=()=>{clearHierarchyEffects();pickerItem='';itemSelect.value='';closePane()};
+ selectionPane.querySelectorAll('[data-picker-country]').forEach(b=>b.onclick=()=>selectCountry(b.dataset.pickerCountry));
+ if(document.getElementById('picker-open-library'))document.getElementById('picker-open-library').onclick=()=>openTopics({category:r.category,country:'',query:r.title,prize:'',year:'',structure:'',lineType:''});
+ document.getElementById('country-pane').scrollTop=0;layoutLabels();
+}
+function applyHierarchyItem(key){
+ const category=hierarchyCategories.find(c=>c.id===pickerCategory),choice=category?.choices.find(x=>x.key===key);
+ clearHierarchyEffects();pickerItem=choice?key:'';itemSelect.value=pickerItem;
+ if(!choice){closePane();return}
+ if(choice.kind==='membership'){
+  activeGroup=choice.organisation;setGroupHighlight();svg.interrupt().call(zoom.transform,d3.zoomIdentity);
+  selectionStatus.textContent=`${choice.label} · ${activeGroup.members.length} countries in the cited membership list`;
+ }else if(choice.kind==='control'){
+  setControlSelection(choice.record.title);
+  selectionStatus.textContent=`${choice.label} · ${ATLAS.controlLineTypes[choice.record.lineType]} · ${choice.record.routeGroup?'source route context':'location marker'}`;
+ }else{
+  if(choice.layer)document.getElementById('layer-'+choice.layer).checked=true;
+  if(choice.record.xy)locateTopic(choice.record);
+  selectionStatus.textContent=choice.label+(choice.kind==='institution'?' · institutional details':' · study reference');
+ }
+ selectionStatus.hidden=false;showSelectionPanel(choice);
+}
+function showMembershipSelection(name){chooseHierarchyCategory('membership');applyHierarchyItem(name)}
+function showLocatedTopic(record){
+ const id=record.category==='geography'?(mountainNames.has(record.title)?'mountains':'geography'):record.category;
+ const category=hierarchyCategories.find(c=>c.id===id);
+ if(!category)return;
+ chooseHierarchyCategory(id);
+ const choice=category.choices.find(c=>c.record.id===record.id||c.label===record.title);
+ if(choice){
+  applyHierarchyItem(choice.key);
+  // Keep the library record's complete facts and sources in the side panel.
+  showSelectionPanel({...choice,record});
+ }else{
+  if(record.xy)locateTopic(record);
+  selectionStatus.textContent=record.title+' · study reference';selectionStatus.hidden=false;
+  showSelectionPanel({key:record.id,label:record.title,kind:'topic',record});
+ }
+}
+categorySelect.onchange=()=>chooseHierarchyCategory(categorySelect.value);
+itemSelect.onchange=()=>applyHierarchyItem(itemSelect.value);
+document.getElementById('reset-map-selection').onclick=()=>{chooseHierarchyCategory('');svg.interrupt().call(zoom.transform,d3.zoomIdentity)};
+const hierarchySelectCountry=selectCountry;
+selectCountry=function(code){
+ selectionPane.hidden=true;
+ if(pickerCategory!=='membership'){pickerItem='';itemSelect.value='';selectionStatus.hidden=true}
+ hierarchySelectCountry(code);
+};
+const hierarchyClosePane=closePane;closePane=function(){activeMapPoint=null;hierarchyClosePane();selectionPane.hidden=true};
+// Close the compact layer menu when the user clicks elsewhere; native details supports keyboards.
+document.addEventListener('click',e=>{const menu=document.querySelector('.layers-menu');if(menu.open&&!menu.contains(e.target))menu.open=false});
+populateHierarchyItems();
 
  window.ATLAS_READY=true;
 }catch(error){const loading=document.getElementById('loading');loading.style.display='grid';loading.innerHTML='<span>Atlas could not load.<br><small id="load-error-detail"></small><br>For the Pages edition, use GitHub Pages or a local web server. For double-click review, open world-atlas-preview.html.</span>';document.getElementById('load-error-detail').textContent=error.message;console.error(error);window.ATLAS_LOAD_ERROR=error.message;}
