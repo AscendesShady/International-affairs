@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Study Atlas · BCS Geography</title>
+<meta name="description" content="An offline vector world atlas with country details, maritime geography, historical peoples and BCS study context.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230d3041'/%3E%3Cpath d='M2 16h28M16 1c-12 9-12 21 0 30M16 1c12 9 12 21 0 30' stroke='%239bded7' fill='none'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/atlas.css">
+</head>
+<body>
+<header>
+ <div class="brand"><strong>World Study Atlas</strong><span>Geography · BCS preparation</span></div>
+ <div class="searchbox"><label for="country-search" aria-label="Search">⌕</label><input id="country-search" type="search" placeholder="Find a country…" autocomplete="off" aria-label="Find a country by name" aria-controls="search-results" aria-expanded="false"><div id="search-results" class="search-results" aria-label="Country matches"></div></div>
+ <div class="header-actions"><button id="topics-btn">Topics</button><button id="country-index-btn">Country index</button><button id="study-btn">BCS coverage</button><button id="sources-btn">Sources</button></div>
+</header>
+<main class="workspace">
+ <section class="map-area" aria-label="Interactive world map">
+  <div class="toolbar"><label class="layer"><input id="layer-oceans" type="checkbox" checked> Oceans & seas</label><label class="layer"><input id="layer-passages" type="checkbox" checked> Straits & canals</label><label class="layer"><input id="layer-lines" type="checkbox" checked> Control / named lines</label><label class="layer"><input id="layer-study" type="checkbox" checked> BCS places</label><label class="group-filter" for="group-filter">Membership <select id="group-filter"><option value="">All countries</option></select></label><button id="clear-group" hidden>Clear</button><span class="hint">Click a country name · Scroll to zoom · Drag to pan</span></div>
+  <div class="control-toolbar"><label for="control-line-filter">Control / boundary reference <select id="control-line-filter"><option value="">All named lines</option></select></label><button id="control-line-study">Browse control lines</button><span id="control-line-status">Dashed routes: source snapshots · Crosses: location markers</span></div><div id="group-context" class="group-context" hidden></div><div class="map-stage" id="map-stage">
+   <svg id="world-map" aria-label="Zoomable vector world map. Select a country name for details." role="img"></svg>
+   <div class="map-controls"><button id="zoom-in" aria-label="Zoom in">+</button><button id="zoom-out" aria-label="Zoom out">−</button><button id="fit-world" class="fit" aria-label="Show whole world" title="Show whole world">⊞</button></div>
+   <div class="zoom-status" id="zoom-status">1× · vector</div><div class="tooltip" id="tooltip"></div>
+   <div class="map-caption"><div class="legend"><span><i class="strait"></i>Strait</span><span><i class="canal"></i>Canal</span><span><i class="line"></i>Control / named-line locator</span><span><i class="study"></i>Study place</span></div><div class="attribution">Made with Natural Earth · Equal Earth projection</div></div>
+   <div class="loading" id="loading"><span>Drawing the world map…</span></div>
+  </div>
+ </section>
+ <aside id="country-pane" aria-label="Selected country details">
+  <div class="empty" id="empty-pane"><span class="eyebrow">Your geography reference</span><h1>The world, one country at a time.</h1><p>Click a country name to reveal its capital, currency, neighbours, waterways, named borders and peoples.</p><div class="step"><b>1</b><span>Zoom in for smaller countries and regional features.</span></div><div class="step"><b>2</b><span>Use the country index for tiny islands and territories.</span></div><div class="step"><b>3</b><span>Read the BCS tab for geography and international-affairs study cues.</span></div><div class="scope">Details stay hidden until you select a country. Use Topics for the study library, including organisation filters, treaties, books and Nobel records.</div></div>
+  <div id="details-pane" hidden></div>
+ </aside>
+</main>
+<dialog id="info-dialog"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" aria-label="Close dialog">✕</button></div><div class="dialog-body" id="dialog-body"></div></dialog>
+<noscript>This atlas requires JavaScript to draw its vector map and open country details.</noscript>
+
+
+
+<script src="assets/vendor/d3.v7.min.js" defer></script><script src="assets/atlas.js" defer></script>
+</body></html>

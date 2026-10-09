@@ -1,0 +1,39 @@
+FINAL GITHUB PAGES UPLOAD FOLDER
+
+The website entry file is index.html, directly in this folder.
+Windows may display it as "index" when file extensions are hidden.
+
+Upload the CONTENTS of this folder to your GitHub repository root:
+
+  index.html
+  .nojekyll
+  assets/
+  data/
+  licenses/
+  README.md
+  validation.json
+  START-HERE.txt
+
+Do not upload an extra enclosing FINAL-GITHUB-PAGES folder. On GitHub,
+index.html must be visible in the repository root beside assets and data.
+
+Enable the website in repository Settings > Pages:
+  Source: Deploy from a branch
+  Branch: main
+  Folder: / (root)
+  Save
+
+If your repository uses a different default branch, select that branch.
+Open the Pages URL shown by GitHub after deployment completes.
+
+All required CSS, JavaScript, map data, and study data are included.
+No backend, API key, npm installation, or build command is required.
+
+For a local HTTP preview, run this command from this folder:
+  python -m http.server 8000
+Then open:
+  http://localhost:8000/
+
+The Pages edition loads adjacent JSON files through HTTP; double-clicking
+index.html is not its supported preview method. For double-click review,
+use the separate world-atlas-preview.html deliverable.
