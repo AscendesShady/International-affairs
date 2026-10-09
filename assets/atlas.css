@@ -19,4 +19,40 @@ dialog{border:1px solid var(--line);border-radius:12px;width:min(850px,94vw);max
 @media(max-width:760px){.hierarchy-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);padding:10px;gap:8px}.hierarchy-field select{height:40px;font-size:13px}.layers-menu{justify-self:start}.layers-menu summary{height:34px;min-width:74px;padding:6px 10px}.hierarchy-reset{height:34px;justify-self:end;padding:6px 10px}.layers-popover{left:0;right:auto;top:calc(100% + 5px);width:235px}.selection-status{padding:6px 10px;font-size:11px}.brand span{font-size:10px;letter-spacing:1.4px}}
 [hidden]{display:none!important}
 
-.offline-status{display:inline-block;margin-left:9px;color:#13717b;font-size:11px}.offline-status:empty{display:none}
+.mobile-nav-toggle,.mobile-topic-category{display:none}
+@media(max-width:760px){
+ header{height:auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:12px;position:relative;z-index:30}
+ .brand{min-width:0;flex:initial;grid-column:1;grid-row:1}.brand strong{font-size:22px;line-height:1.2}.brand span{font-size:9px;letter-spacing:1.1px;line-height:1.5;display:block;margin-top:4px}
+ .mobile-nav-toggle{display:block;grid-column:2;grid-row:1;min-width:64px;min-height:44px;background:#ffffff12;border-color:#668796;color:white;font-size:14px;padding:9px 12px;border-radius:8px}
+ .mobile-nav-toggle[aria-expanded=true]{background:#2a6574;border-color:#9ad2d0}
+ .searchbox{grid-column:1/-1;grid-row:2;order:initial;max-width:none;min-width:0;width:100%;flex:initial}.searchbox input{height:44px;font-size:16px;padding-top:10px;padding-bottom:10px}.searchbox label{top:10px}
+ .header-actions{display:none;position:absolute;right:12px;top:62px;left:auto;max-width:none;width:min(270px,calc(100vw - 24px));margin:0;z-index:40;border:1px solid #4e7586;border-radius:10px;background:#14394c;box-shadow:0 10px 32px #06223050;padding:8px;gap:5px}
+ .header-actions.is-open{display:grid;grid-template-columns:1fr}.header-actions button{font-size:15px;min-height:44px;text-align:left;border:0;background:transparent;border-radius:6px;padding:10px 13px}.header-actions button:hover{background:#ffffff19}
+ .hierarchy-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:12px;z-index:10}
+ .hierarchy-field span{font-size:12px}.hierarchy-field select{height:44px;font-size:16px;padding:9px 30px 9px 10px;background-position:right 10px center}
+ .layers-menu{justify-self:stretch;min-width:0}.layers-menu summary{width:100%;height:44px;font-size:14px;min-width:0}.hierarchy-reset{justify-self:stretch;min-width:0;width:100%;height:44px;font-size:14px}
+ .layers-popover{left:0;right:auto;max-width:calc(100vw - 24px);width:260px}.layers-popover .layer{min-height:44px;font-size:15px}
+ .map-area{height:clamp(420px,62svh,540px);min-height:420px}.selection-status{font-size:12px;line-height:1.4;padding:7px 12px}
+ .map-controls{left:12px;bottom:102px;flex-direction:row;gap:0;padding:3px;border-radius:10px;background:#fff;box-shadow:0 3px 12px #12374626}
+ .map-controls button{width:44px;height:44px;border:0;border-radius:7px;box-shadow:none}.map-controls .fit{font-size:20px}
+ .zoom-status{left:156px;bottom:114px;font-size:11px;padding:3px 7px}
+ .map-caption{left:12px;right:12px;bottom:10px;padding:9px 10px;font-size:10px;border-radius:8px}
+ .legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:10px;line-height:1.4}.legend span{white-space:normal;min-width:0}
+ .attribution{white-space:normal;display:flex;flex-wrap:wrap;align-items:center;gap:3px 7px;font-size:10px;line-height:1.4;margin-top:6px}.offline-status{margin-left:0;font-size:10px}
+ .pane-head{padding:18px 16px;position:relative}.pane-head h1{font-size:26px;line-height:1.25;margin-right:44px}.pane-head p{font-size:14px}.close-pane{right:12px;top:13px;min-width:44px;min-height:44px;font-size:23px}
+ .pane-body{padding:0 16px 24px}.pane-tabs{gap:6px}.pane-tabs button{min-height:44px;padding:8px 5px;font-size:13px;min-width:0}
+ .section p,.section li{font-size:16px;line-height:1.6}.section h2{font-size:16px}.chips button{min-height:40px;font-size:14px;padding:7px 10px}.focus-button,.load-more{min-height:44px;font-size:14px}
+ dialog,.topics-dialog{width:calc(100vw - 16px);max-width:calc(100vw - 16px);max-height:92dvh;margin:4dvh auto;border-radius:12px}
+ .dialog-head,.topics-dialog .dialog-head{padding:12px 14px;gap:12px}.dialog-head h2{font-size:23px;min-width:0}.dialog-head button{min-width:44px;min-height:44px;padding:5px 9px}
+ .dialog-body,.topics-dialog .dialog-body{max-height:calc(92dvh - 70px)}.dialog-body{padding:16px}.topics-dialog .dialog-body{padding:0}
+ .library-layout{display:block}.topic-navigation{display:none}
+ .mobile-topic-category{display:block;font-size:13px;font-weight:600;padding:12px 14px;background:#edf5f7;border-bottom:1px solid #d8e4e8}
+ .mobile-topic-category select{display:block;width:100%;min-height:44px;margin-top:6px;padding:9px 10px;font:16px 'Segoe UI',Arial,sans-serif;border:1px solid #b7ced6;border-radius:7px;background:white;color:#183847}
+ .library-intro{padding:14px}.library-intro p{font-size:14px}.library-content{padding:14px}.library-filters{grid-template-columns:1fr;gap:12px}
+ .library-filters input,.library-filters select,.topic-select,.country-picker{font-size:16px;min-height:44px}.library-filters label{font-size:13px}
+ .library-status{gap:8px;align-items:center;flex-wrap:wrap}.library-status button{min-height:40px;font-size:13px;padding:7px 10px}
+ .topic-card{padding:15px}.topic-card h3{font-size:21px}.topic-card p,.topic-card li{font-size:15px}.topic-card summary{font-size:14px;padding:4px 0}
+ .topic-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.topic-actions button{min-height:44px;font-size:14px;padding:8px}
+ .country-link{font-size:13px;min-height:34px;padding:5px 8px}.country-index{gap:8px}.country-index button{font-size:14px;min-height:44px;padding:8px}
+}
+@media(max-width:350px){.brand strong{font-size:20px}.brand span{font-size:8px;letter-spacing:.7px}.mobile-nav-toggle{min-width:58px;padding:9px}.hierarchy-toolbar{gap:8px}.hierarchy-field select{font-size:15px}.map-caption{font-size:9px}.attribution,.offline-status{font-size:9px}}

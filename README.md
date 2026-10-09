@@ -34,7 +34,7 @@ From this folder run `python -m http.server 8000`, then open `http://localhost:8
 
 Datasets are dated snapshots, not live feeds. An empty country/topic result means this curated library has no linked entry; it does not mean the real-world subject is absent. See `licenses/DATA-SOURCES.md` for dataset-specific conditions, including IPU’s noncommercial licence.
 
-No site has been published automatically and no PDF has been created. PDF conversion remains pending HTML review.
+The atlas is published through GitHub Pages. PDF conversion remains pending HTML review.
 
 ## Install on a phone and use offline
 
@@ -55,6 +55,14 @@ PWA verification: 13 manifest/icon and service-worker lifecycle/offline-request 
 
 The final interface uses neutral branding: “Geography · History · World affairs”. The visible “BCS preparation” wording was removed; source references to historical exam questions remain as evidence inside the coverage material.
 
-35 DOM-emulation/runtime and static-asset checks passed. Targeted live desktop-browser checks also passed: Institutions → UNICEF, Membership → G7, and Topic Explorer → Ancient Egypt → Locate on map with the matching side panel and retained 10× zoom. Mobile visual layout was not browser-tested. See `validation.json`.
+37 DOM-emulation/runtime and static-asset checks passed, alongside the 13 PWA checks. Live browser checks covered phone widths of 320, 360, 390 and 430 pixels and a 1280-pixel desktop breakpoint. Menu dismissal, topic-category selection, and Topic Explorer → Ancient Egypt → Locate on map were verified, including matching details and retained 10× zoom. See `validation.json`, `phone-validation.json` and `pwa-validation.json`.
 
 G7 and Commonwealth membership lists and UNICEF institutional details were checked against their official sources on 9 October 2026. The G7 filter highlights seven countries; EU participation is described separately. Commonwealth has 56 countries in the cited list.
+
+## Phone layout
+
+On phones, the title and **Menu** share a compact header row, followed by the country search. Menu contains Topics, Country index, Topic coverage, Sources and available Install/Update actions. The Category/Item selectors and Layers/Reset controls form aligned pairs, with 44-pixel primary touch targets. Zoom buttons sit together in a horizontal strip.
+
+Topic Explorer replaces its desktop category-button column with one phone dropdown. Country details and located-topic information remain below the map. The footer wraps within the screen width. The tested phone header is 128 pixels high, reduced from 217 pixels, and the tested layouts have no horizontal page overflow.
+
+For an installed or cached PWA, use **Update app** when offered to load this layout. In the new phone interface, Update is inside Menu. Closing all atlas tabs/app windows also allows a fully downloaded waiting release to activate.

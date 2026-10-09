@@ -1,0 +1,161 @@
+{
+  "status": "passed",
+  "date": "2026-10-09",
+  "method": "Live browser responsive-layout and interaction checks",
+  "phoneWidths": [
+    320,
+    360,
+    390,
+    430
+  ],
+  "measurements": [
+    {
+      "clientWidth": 305,
+      "headerHeight": 128,
+      "menuVisible": true,
+      "navCollapsed": true,
+      "scrollWidth": 305,
+      "selectors": [
+        {
+          "height": 44,
+          "width": 136.5,
+          "x": 12,
+          "y": 159.390625
+        },
+        {
+          "height": 44,
+          "width": 136.5,
+          "x": 156.5,
+          "y": 159.390625
+        }
+      ],
+      "titleHeight": 24,
+      "width": 320,
+      "zoomButtons": [
+        {
+          "height": 44,
+          "width": 44,
+          "x": 15,
+          "y": 399
+        },
+        {
+          "height": 44,
+          "width": 44,
+          "x": 59,
+          "y": 399
+        },
+        {
+          "height": 44,
+          "width": 44,
+          "x": 103,
+          "y": 399
+        }
+      ]
+    },
+    {
+      "clientWidth": 345,
+      "headerHeight": 128,
+      "menuVisible": true,
+      "navCollapsed": true,
+      "scrollWidth": 345,
+      "selectors": [
+        {
+          "height": 44,
+          "width": 155.5,
+          "x": 12,
+          "y": 159.390625
+        },
+        {
+          "height": 44,
+          "width": 155.5,
+          "x": 177.5,
+          "y": 159.390625
+        }
+      ],
+      "titleHeight": 26.390625,
+      "width": 360,
+      "zoomButtons": [
+        {
+          "height": 44,
+          "width": 44,
+          "x": 15,
+          "y": 462.59375
+        },
+        {
+          "height": 44,
+          "width": 44,
+          "x": 59,
+          "y": 462.59375
+        },
+        {
+          "height": 44,
+          "width": 44,
+          "x": 103,
+          "y": 462.59375
+        }
+      ]
+    },
+    {
+      "clientWidth": 415,
+      "headerHeight": 128,
+      "menuVisible": true,
+      "navCollapsed": true,
+      "scrollWidth": 415,
+      "selectors": [
+        {
+          "height": 44,
+          "width": 190.5,
+          "x": 12,
+          "y": 159.390625
+        },
+        {
+          "height": 44,
+          "width": 190.5,
+          "x": 212.5,
+          "y": 159.390625
+        }
+      ],
+      "titleHeight": 26.390625,
+      "width": 430,
+      "zoomButtons": [
+        {
+          "height": 44,
+          "width": 44,
+          "x": 15,
+          "y": 519
+        },
+        {
+          "height": 44,
+          "width": 44,
+          "x": 59,
+          "y": 519
+        },
+        {
+          "height": 44,
+          "width": 44,
+          "x": 103,
+          "y": 519
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "Phone header reduced from 217px to 128px",
+    "No horizontal page overflow at the measured phone widths",
+    "Category and item dropdowns remain aligned",
+    "Zoom buttons form a horizontal row with 44px touch targets",
+    "Menu opens and closes after a navigation action",
+    "Escape closes Menu without dismissing the selected topic",
+    "Topic Explorer uses its mobile category dropdown",
+    "Locate on map shows the matching side-panel facts and retains 10x zoom",
+    "Desktop viewport override reset after testing"
+  ],
+  "physicalPhone": "Responsive browser testing; no physical phone was controlled.",
+  "desktopBreakpoint": {
+    "width": 1280,
+    "headerHeight": 80,
+    "navigationDisplay": "flex",
+    "phoneMenuDisplay": "none",
+    "horizontalOverflow": false
+  }
+}

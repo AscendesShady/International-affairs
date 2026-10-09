@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "method": "Node DOM-emulation runtime and static asset checks; not a live browser",
-  "checks": 35,
+  "checks": 37,
   "details": [
     "Static edition loads four local JSON files under a GitHub project subpath",
     "All original country polygons render; details initially hidden",
@@ -36,6 +36,8 @@
     "Preparation branding is removed from visible UI",
     "Locate on map from Topic Explorer opens the same topic in the side panel",
     "Opening topic details preserves the located position when map layout resizes",
+    "Phone navigation disclosure opens and closes when a navigation action is used",
+    "Phone topic dropdown uses the existing category filtering and keeps its value synced",
     "Standalone companion runs without fetching files",
     "A failed local data load gives a useful visible error"
   ],
@@ -50,13 +52,14 @@
   "categories": 13,
   "sourceSnapshot": "2026-10-08; control lines 2026-10-09",
   "built": "2026-10-09",
-  "browserQA": "Passed targeted live desktop-browser checks on 9 October 2026; mobile layout was not browser-tested.",
+  "browserQA": "Passed live responsive-layout and interaction checks at phone widths 320, 360, 390 and 430, plus a 1280-pixel desktop breakpoint.",
   "browserChecks": [
-    "Category -> Institutions populates UNICEF, UN, World Bank and Commonwealth choices",
-    "Institutions -> UNICEF opens headquarters and source details",
-    "Category -> Membership -> G7 highlights its seven countries and opens the details panel",
-    "Topic Explorer -> Civilisations -> Ancient Egypt -> Locate on map opens the matching side panel",
-    "Map retains 10x focus after the topic side panel changes the layout",
-    "Visible branding reads Geography, History and World affairs"
+    "Compact phone Menu opens and closes on navigation",
+    "Escape closes Menu without dismissing a selected topic",
+    "Topic Explorer uses the mobile category dropdown",
+    "Located Ancient Egypt retains 10x zoom with matching side-panel facts",
+    "Primary phone controls have 44px touch targets",
+    "No horizontal overflow at measured phone widths",
+    "Desktop navigation remains flex with an 80px header at 1280px"
   ]
 }

@@ -360,6 +360,33 @@ const hierarchyClosePane=closePane;closePane=function(){activeMapPoint=null;hier
 document.addEventListener('click',e=>{const menu=document.querySelector('.layers-menu');if(menu.open&&!menu.contains(e.target))menu.open=false});
 populateHierarchyItems();
 
+
+// Keep desktop actions visible; phone navigation lives in one accessible disclosure.
+const mobileNavToggle=document.getElementById('mobile-nav-toggle');
+const mobileNavActions=document.getElementById('header-actions');
+function setMobileNavigation(open,restoreFocus=false){
+ mobileNavActions.classList.toggle('is-open',open);
+ mobileNavToggle.setAttribute('aria-expanded',open?'true':'false');
+ if(restoreFocus)mobileNavToggle.focus();
+}
+mobileNavToggle.addEventListener('click',()=>setMobileNavigation(mobileNavToggle.getAttribute('aria-expanded')!=='true'));
+mobileNavActions.addEventListener('click',e=>{if(e.target.closest('button'))setMobileNavigation(false)});
+document.addEventListener('click',e=>{if(!mobileNavToggle.contains(e.target)&&!mobileNavActions.contains(e.target))setMobileNavigation(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mobileNavToggle.getAttribute('aria-expanded')==='true'){e.preventDefault();e.stopImmediatePropagation();setMobileNavigation(false,true)}},true);
+matchMedia('(min-width: 761px)').addEventListener?.('change',()=>setMobileNavigation(false));
+
+// On phones, category selection is a single dropdown rather than thirteen wrapped buttons.
+const mobileOpenTopics=openTopics;
+openTopics=function(preset={}){
+ mobileOpenTopics(preset);
+ const nav=document.querySelector('.topic-navigation');
+ nav.insertAdjacentHTML('beforebegin',`<label class="mobile-topic-category" for="mobile-library-category">Topic category<select id="mobile-library-category"><option value="">All topics</option>${KNOWLEDGE.metadata.categories.map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join('')}</select></label>`);
+ const select=document.getElementById('mobile-library-category');select.value=libraryState.category;
+ select.addEventListener('change',()=>{const button=[...nav.querySelectorAll('[data-library-category]')].find(b=>b.dataset.libraryCategory===select.value);button?.click()});
+};
+const mobileRenderLibrary=renderLibraryResults;
+renderLibraryResults=function(){mobileRenderLibrary();const select=document.getElementById('mobile-library-category');if(select)select.value=libraryState.category};
+
  window.ATLAS_READY=true;
 }catch(error){const loading=document.getElementById('loading');loading.style.display='grid';loading.innerHTML='<span>Atlas could not load.<br><small id="load-error-detail"></small><br>For the Pages edition, use GitHub Pages or a local web server. For double-click review, open world-atlas-preview.html.</span>';document.getElementById('load-error-detail').textContent=error.message;console.error(error);window.ATLAS_LOAD_ERROR=error.message;}
 })();
