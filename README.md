@@ -36,6 +36,21 @@ Datasets are dated snapshots, not live feeds. An empty country/topic result mean
 
 No site has been published automatically and no PDF has been created. PDF conversion remains pending HTML review.
 
+## Install on a phone and use offline
+
+This site is a PWA. `manifest.json` provides standalone display, relative start/scope/id, theme colours, regular 192/512 PNG icons and an Android maskable icon. `sw.js` caches the app shell and all atlas datasets; `assets/pwa.js` registers it and exposes installation/update controls when the browser supports them.
+
+1. Open `https://ascendesshady.github.io/International-affairs/` in Chrome on your phone after GitHub Pages deploys.
+2. Keep the first visit online until **Offline ready** appears at the bottom of the map. The initial cached bundle is about 12 MB.
+3. Tap **Install app** if it appears, or use Chrome’s menu → **Add to Home screen / Install app**. The wording varies by Chrome version.
+4. Launch World Atlas from the phone’s home screen. The manifest requests a standalone app window. The map, country details and bundled topic data work offline; external reference/source pages still require internet.
+
+The app uses versioned, scope-specific caches. A fully downloaded new release waits rather than mixing its code/data with the previous release; **Update app** activates it and refreshes the page. Closing all app/site tabs also allows a waiting worker to activate. Cache cleanup affects only this exact project scope. Installation requires HTTPS (localhost is permitted for development). A direct file:// launch cannot install/register this PWA; use the hosted site.
+
+When changing any cached HTML, CSS, JS, icon or dataset, update the `VERSION` value in `sw.js` as part of the release. The authoring build helper regenerates a version from the cached file content automatically.
+
+PWA verification: 13 manifest/icon and service-worker lifecycle/offline-request checks passed, including complete data caching, failure-safe installation, update activation, query-string reads and cache isolation. The live desktop browser completed registration and displayed **Offline ready** with no console errors. Physical phone installation is performed by the user.
+
 ## Latest verification
 
 The final interface uses neutral branding: “Geography · History · World affairs”. The visible “BCS preparation” wording was removed; source references to historical exam questions remain as evidence inside the coverage material.

@@ -29,6 +29,13 @@ Open the Pages URL shown by GitHub after deployment completes.
 All required CSS, JavaScript, map data, and study data are included.
 No backend, API key, npm installation, or build command is required.
 
+PHONE INSTALLATION / OFFLINE USE
+This folder also includes manifest.json, sw.js, the PWA client, and app icons.
+After GitHub Pages deploys, open the HTTPS site in Chrome on your phone.
+Wait for "Offline ready", then use Install app or Chrome's menu >
+Add to Home screen / Install app. The saved atlas is about 12 MB.
+External reference links still need internet.
+
 USING THE NEW SELECTORS
 Choose Category first, then select the matching Item:
   Institutions > UN / UNICEF / World Bank / Commonwealth

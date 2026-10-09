@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "checks": 13,
+  "details": [
+    "Manifest provides standalone mode, project-relative id/start/scope and 192/512 icons",
+    "Every icon is a real PNG of the declared dimensions",
+    "HTML links manifest, theme, touch icon and PWA client",
+    "Precache succeeds for the complete app shell, scripts, icons and all five data files",
+    "All 16 cached URLs return offline without making any network request",
+    "Offline data reads tolerate cache-busting query strings",
+    "Direct dataset navigation stays JSON rather than being replaced by the HTML shell",
+    "External links, other Pages projects and non-GET requests are not intercepted",
+    "Activation removes only old cache versions for this exact app scope",
+    "An explicit update request can activate a waiting worker",
+    "A missing core dataset rejects installation rather than activating a partial offline atlas",
+    "Cache names are isolated across project scopes on the same GitHub Pages origin",
+    "The same worker also supports root-domain hosting"
+  ],
+  "method": "Manifest/icon checks and service-worker lifecycle/offline fetch tests using real bundled asset bytes",
+  "precacheURLs": 16,
+  "cacheVersion": "4811b1f5c0377c64",
+  "phoneInstallation": "Manifest and offline behaviour verified; physical phone installation is user-performed."
+}
