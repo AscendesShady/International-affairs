@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "method": "Node DOM-emulation runtime and static asset checks; not a live browser",
-  "checks": 37,
+  "checks": 39,
   "details": [
     "Static edition loads four local JSON files under a GitHub project subpath",
     "All original country polygons render; details initially hidden",
@@ -38,6 +38,8 @@
     "Opening topic details preserves the located position when map layout resizes",
     "Phone navigation disclosure opens and closes when a navigation action is used",
     "Phone topic dropdown uses the existing category filtering and keeps its value synced",
+    "Country and water text stay at readable font sizes even at maximum zoom",
+    "Phone focus button returns to the map without closing the country details",
     "Standalone companion runs without fetching files",
     "A failed local data load gives a useful visible error"
   ],
@@ -51,15 +53,6 @@
   },
   "categories": 13,
   "sourceSnapshot": "2026-10-08; control lines 2026-10-09",
-  "built": "2026-10-09",
-  "browserQA": "Passed live responsive-layout and interaction checks at phone widths 320, 360, 390 and 430, plus a 1280-pixel desktop breakpoint.",
-  "browserChecks": [
-    "Compact phone Menu opens and closes on navigation",
-    "Escape closes Menu without dismissing a selected topic",
-    "Topic Explorer uses the mobile category dropdown",
-    "Located Ancient Egypt retains 10x zoom with matching side-panel facts",
-    "Primary phone controls have 44px touch targets",
-    "No horizontal overflow at measured phone widths",
-    "Desktop navigation remains flex with an 80px header at 1280px"
-  ]
+  "built": "2026-10-11",
+  "browserQA": "Live browser: Singapore at 85x on desktop and 390x844 phone; fixed 13px font, about 17px rendered label height, no horizontal overflow or console errors. Phone focus returns to map and keeps country panel open."
 }

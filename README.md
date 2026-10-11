@@ -55,7 +55,7 @@ PWA verification: 13 manifest/icon and service-worker lifecycle/offline-request 
 
 The final interface uses neutral branding: “Geography · History · World affairs”. The visible “BCS preparation” wording was removed; source references to historical exam questions remain as evidence inside the coverage material.
 
-37 DOM-emulation/runtime and static-asset checks passed, alongside the 13 PWA checks. Live browser checks covered phone widths of 320, 360, 390 and 430 pixels and a 1280-pixel desktop breakpoint. Menu dismissal, topic-category selection, and Topic Explorer → Ancient Egypt → Locate on map were verified, including matching details and retained 10× zoom. See `validation.json`, `phone-validation.json` and `pwa-validation.json`.
+39 DOM-emulation/runtime and static-asset checks passed, alongside the 13 PWA checks. Live browser checks covered phone widths of 320, 360, 390 and 430 pixels and a 1280-pixel desktop breakpoint. Menu dismissal, topic-category selection, and Topic Explorer → Ancient Egypt → Locate on map were verified, including matching details and retained 10× zoom. See `validation.json`, `phone-validation.json` and `pwa-validation.json`.
 
 G7 and Commonwealth membership lists and UNICEF institutional details were checked against their official sources on 9 October 2026. The G7 filter highlights seven countries; EU participation is described separately. Commonwealth has 56 countries in the cited list.
 
@@ -66,3 +66,9 @@ On phones, the title and **Menu** share a compact header row, followed by the co
 Topic Explorer replaces its desktop category-button column with one phone dropdown. Country details and located-topic information remain below the map. The footer wraps within the screen width. The tested phone header is 128 pixels high, reduced from 217 pixels, and the tested layouts have no horizontal page overflow.
 
 For an installed or cached PWA, use **Update app** when offered to load this layout. In the new phone interface, Update is inside Menu. Closing all atlas tabs/app windows also allows a fully downloaded waiting release to activate.
+
+## Country label correction · 11 October 2026
+
+Country and water labels use normal fixed font sizes with inverse SVG transforms, so browser minimum-font settings cannot turn a tiny zoom-adjusted font into oversized map text. The selected country name sits above its anchor to help separate it from the capital label. On phones, **Focus on country** also scrolls back to the map while keeping details open. Singapore was visually checked at 85× on desktop and a 390×844 phone viewport; its country label remained about 17 pixels high, with no horizontal overflow or console errors. Regression checks cover Bangladesh, Singapore, Vatican City and Russia through 2048×. See `label-validation.json`.
+
+Useful future features are saved study items, country comparison and recall quizzes using the cited facts already in the atlas. Additional study information should remain in country and topic panels to keep the map readable.

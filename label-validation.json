@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-11",
+  "status": "passed",
+  "runtimeChecks": 39,
+  "offlineChecks": 13,
+  "liveBrowser": {
+    "country": "Singapore",
+    "zoom": 85,
+    "phoneViewport": [
+      390,
+      844
+    ],
+    "fontPx": 13,
+    "renderedHeightPx": 17,
+    "horizontalOverflow": false,
+    "consoleErrors": 0
+  },
+  "changes": [
+    "Fixed font sizes and inverse scale for country and water labels",
+    "Selected country label moved above its anchor to separate capital text",
+    "Country focus action returns to map on phone"
+  ],
+  "review": "Useful future extensions: saved study items, country comparison, recall quizzes built from existing cited facts. Keep additional information in country/topic panels to preserve the uncluttered map."
+}
