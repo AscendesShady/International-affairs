@@ -18,6 +18,8 @@ dialog{border:1px solid var(--line);border-radius:12px;width:min(850px,94vw);max
 @media(max-width:1100px){.hierarchy-toolbar{grid-template-columns:minmax(125px,.8fr) minmax(175px,1.4fr) auto auto;gap:8px;padding:10px 12px}.hierarchy-field select{font-size:13px;padding-left:9px}.layers-menu summary,.hierarchy-reset{font-size:13px}}
 @media(max-width:760px){.hierarchy-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);padding:10px;gap:8px}.hierarchy-field select{height:40px;font-size:13px}.layers-menu{justify-self:start}.layers-menu summary{height:34px;min-width:74px;padding:6px 10px}.hierarchy-reset{height:34px;justify-self:end;padding:6px 10px}.layers-popover{left:0;right:auto;top:calc(100% + 5px);width:235px}.selection-status{padding:6px 10px;font-size:11px}.brand span{font-size:10px;letter-spacing:1.4px}}
 [hidden]{display:none!important}
+/* Partial-country context is visually distinct from the principal region grouping. */
+.country.region-partial{fill:#f3dcad!important;stroke:#a8681c;stroke-width:1.6;stroke-dasharray:4 3}
 
 .mobile-nav-toggle,.mobile-topic-category{display:none}
 @media(max-width:760px){

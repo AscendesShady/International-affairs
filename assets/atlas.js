@@ -143,8 +143,9 @@ const topicSearch=new Map(KNOWLEDGE.records.map(r=>[r.id,normaliseText([r.title,
 const topicById=new Map(KNOWLEDGE.records.map(r=>[r.id,r]));
 function setGroupHighlight(){
  const members=activeGroup?new Set(activeGroup.members):null;
- countries.classed('group-member',d=>members?.has(d.properties.code)||false).classed('group-outside',d=>members&&!members.has(d.properties.code));
- labels.classed('group-outside',d=>members&&!members.has(d.code));dots.classed('group-outside',d=>members&&!members.has(d.code));
+ const partial=new Set(activeGroup?.partialCountries||[]);
+ countries.classed('group-member',d=>members?.has(d.properties.code)||false).classed('region-partial',d=>partial.has(d.properties.code)).classed('group-outside',d=>members&&!members.has(d.properties.code)&&!partial.has(d.properties.code));
+ labels.classed('group-outside',d=>members&&!members.has(d.code)&&!partial.has(d.code));dots.classed('group-outside',d=>members&&!members.has(d.code)&&!partial.has(d.code));
 }
 function shortTopicCard(r){
  const countryLinks=r.countries.slice(0,6).map(c=>records[c]?`<button class="country-link" data-topic-country="${esc(c)}">${esc(records[c].name)}</button>`:'').join('');
@@ -152,7 +153,7 @@ function shortTopicCard(r){
  if(r.category==='nobel'){
    awardBasis=`<p class="association-note">Country association: ${r.organisationLocation?`organisation location in ${esc(r.organisationLocation)}`:r.birthCode?`birthplace in ${esc(records[r.birthCode]?.name||r.birthCode)}`:'no mapped personal birthplace'}${r.affiliationCodes.length?`; award affiliation in ${r.affiliationCodes.map(c=>esc(records[c]?.name||c)).join(', ')}`:''}. ${r.laureateType==='organisation'?'Organisation laureate.':''}</p>`;
  }
- return `<article class="topic-card" data-topic-id="${esc(r.id)}"><div class="topic-meta"><span>${esc(categoryLabels.get(r.category))}</span><span>${esc(r.period)}</span></div><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p>${awardBasis}<details><summary>Study details & sources</summary><ul>${r.facts.filter(Boolean).map(f=>`<li>${esc(f)}</li>`).join('')}</ul>${r.members?`<p><b>Members in the cited list</b></p><div class="topic-countries">${r.members.map(c=>`<button class="country-link" data-topic-country="${esc(c)}">${esc(records[c]?.name||c)}</button>`).join('')}</div>`:''}${r.partnerMembers?.length?`<p class="note">Partners, shown separately: ${r.partnerMembers.map(c=>esc(records[c]?.name||c)).join(', ')}. Partners are not included in the member highlight.</p>`:''}${r.formerMembers?.length?`<p class="note">Selected former members: ${r.formerMembers.map(c=>esc(records[c]?.name||c)).join(', ')}.</p>`:''}<div class="topic-sources">${r.sources.map(s=>link(s.url,s.title)).join('')}</div><p class="note">Source snapshot / reading date: ${esc(r.reviewed)}. Country tags identify the record’s stated context.</p></details><div class="topic-countries">${countryLinks}${r.countries.length>6?`<span class="note">+${r.countries.length-6} more in details</span>`:''}</div><div class="topic-actions">${r.xy?`<button data-locate-topic="${esc(r.id)}">Locate on map</button>`:''}${r.members?`<button data-members-topic="${esc(r.id)}">Highlight members</button>`:''}</div></article>`;
+ return `<article class="topic-card" data-topic-id="${esc(r.id)}"><div class="topic-meta"><span>${esc(categoryLabels.get(r.category))}</span><span>${esc(r.period)}</span></div><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p>${awardBasis}<details><summary>Study details & sources</summary><ul>${r.facts.filter(Boolean).map(f=>`<li>${esc(f)}</li>`).join('')}</ul>${r.members?`<p><b>Members in the cited list</b></p><div class="topic-countries">${r.members.map(c=>`<button class="country-link" data-topic-country="${esc(c)}">${esc(records[c]?.name||c)}</button>`).join('')}</div>`:''}${r.partnerMembers?.length?`<p class="note">Partners, shown separately: ${r.partnerMembers.map(c=>esc(records[c]?.name||c)).join(', ')}. Partners are not included in the member highlight.</p>`:''}${r.formerMembers?.length?`<p class="note">Selected former members: ${r.formerMembers.map(c=>esc(records[c]?.name||c)).join(', ')}.</p>`:''}<div class="topic-sources">${r.sources.map(s=>link(s.url,s.title)).join('')}</div><p class="note">Source snapshot / reading date: ${esc(r.reviewed)}. Country tags identify the record’s stated context.</p></details><div class="topic-countries">${countryLinks}${r.countries.length>6?`<span class="note">+${r.countries.length-6} more in details</span>`:''}</div><div class="topic-actions">${(r.xy||r.category==='regions')?`<button data-locate-topic="${esc(r.id)}">Locate on map</button>`:''}${r.members?`<button data-members-topic="${esc(r.id)}">Highlight members</button>`:''}</div></article>`;
 }
 function wireTopicActions(container){
  container.querySelectorAll('[data-topic-country]').forEach(b=>b.onclick=()=>{if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');selectCountry(b.dataset.topicCountry)});
@@ -160,11 +161,24 @@ function wireTopicActions(container){
  container.querySelectorAll('[data-members-topic]').forEach(b=>b.onclick=()=>{const r=topicById.get(b.dataset.membersTopic);if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');showMembershipSelection(r.title)});
 }
 function locateTopic(r,animate=true){
+ if(r.category==='regions'){focusRegion(r,animate);return}
  activeMapPoint=r;
  const pt=projection(r.xy),k=10,t=d3.zoomIdentity.translate(width*.5-k*pt[0],height*.45-k*pt[1]).scale(k);
  svg.interrupt();(animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches?svg.transition().duration(400):svg).call(zoom.transform,t);
  const g=root.selectAll('.topic-locator').data([r]).join('g').attr('class','topic-locator').attr('transform',`translate(${pt}) scale(${1/transform.k})`);
  g.selectAll('*').remove();g.append('circle').attr('r',7).attr('fill','#c65d20').attr('stroke','white').attr('stroke-width',2);g.append('text').attr('x',10).attr('y',4).style('font-size','13px').attr('fill','#903d18').attr('paint-order','stroke').attr('stroke','white').attr('stroke-width',3).text(r.title);
+}
+function focusRegion(r,animate=true){
+ activeMapPoint=r;
+ const parts=r.regionCountries.map(countryPart).filter(Boolean);
+ if(!parts.length)return;
+ const b=path.bounds({type:'FeatureCollection',features:parts});
+ const dx=b[1][0]-b[0][0],dy=b[1][1]-b[0][1];
+ const k=Math.max(1,Math.min(30,.70/Math.max(dx/width,dy/height)));
+ const center=[(b[0][0]+b[1][0])/2,(b[0][1]+b[1][1])/2];
+ const t=d3.zoomIdentity.translate(width*.5-k*center[0],height*.43-k*center[1]).scale(k);
+ svg.interrupt();(animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches?svg.transition().duration(400):svg).call(zoom.transform,t);
+ root.selectAll('.topic-locator').remove();
 }
 function filterTopics(state){
  const q=normaliseText(state.query.trim());
@@ -271,12 +285,13 @@ function featureChoices(kind){return ATLAS.features.filter(f=>f.kind===kind&&f.n
  facts:['The locator gives a general position, not a surveyed extent, navigation route or territorial claim.'],
  sources:[{title:'Reference / further reading',url:f.source}],tags:[kind],reviewed:'2026-10-08',xy:f.xy
  }})).sort((a,b)=>a.label.localeCompare(b.label))}
-function studyChoices(category){return KNOWLEDGE.records.filter(r=>r.category===category).map(r=>({key:r.id,label:r.title,kind:category==='control-lines'?'control':'topic',record:r})).sort((a,b)=>a.label.localeCompare(b.label))}
+function studyChoices(category){return KNOWLEDGE.records.filter(r=>r.category===category).map(r=>({key:r.id,label:r.title,kind:category==='control-lines'?'control':category==='regions'?'region':'topic',record:r})).sort((a,b)=>a.label.localeCompare(b.label))}
 const mountainNames=new Set(['Mount Everest','Himalayas','K2','Andes','Alps','Ural Mountains']);
 const geographyChoices=featureChoices('study');
 const hierarchyCategories=[
  {id:'institutions',label:'Institutions',itemLabel:'Institution',choices:institutionChoices},
  {id:'membership',label:'Membership',itemLabel:'Group / alliance',choices:ATLAS.organisations.map(o=>({key:o.name,label:o.name,kind:'membership',organisation:o,record:topicById.get('organisation-'+o.name.toLowerCase())})).sort((a,b)=>a.label.localeCompare(b.label))},
+ {id:'regions',label:'Regions & peninsulas',itemLabel:'Region / peninsula',choices:studyChoices('regions')},
  {id:'straits',label:'Straits & passages',itemLabel:'Strait / passage',choices:featureChoices('strait')},
  {id:'canals',label:'Canals',itemLabel:'Canal',choices:featureChoices('canal')},
  {id:'control-lines',label:'Control lines & boundaries',itemLabel:'Line / boundary reference',choices:studyChoices('control-lines')},
@@ -284,7 +299,7 @@ const hierarchyCategories=[
  {id:'seas',label:'Seas, gulfs & bays',itemLabel:'Sea / gulf / bay',choices:featureChoices('sea')},
  {id:'mountains',label:'Mountains & ranges',itemLabel:'Mountain / range',choices:geographyChoices.filter(x=>mountainNames.has(x.label))},
  {id:'geography',label:'Rivers, lakes & places',itemLabel:'Geographic place',choices:geographyChoices.filter(x=>!mountainNames.has(x.label))},
- ...KNOWLEDGE.metadata.categories.filter(c=>!['organisations','geography','control-lines'].includes(c.id)).map(c=>({id:c.id,label:c.label,itemLabel:'Study item',choices:studyChoices(c.id)}))
+ ...KNOWLEDGE.metadata.categories.filter(c=>!['organisations','geography','control-lines','regions'].includes(c.id)).map(c=>({id:c.id,label:c.label,itemLabel:'Study item',choices:studyChoices(c.id)}))
 ];
 const categorySelect=document.getElementById('map-category'),itemSelect=document.getElementById('map-item');
 const selectionPane=document.getElementById('selection-pane'),selectionStatus=document.getElementById('selection-status');
@@ -308,7 +323,9 @@ function showSelectionPanel(choice){
  document.getElementById('empty-pane').hidden=true;document.getElementById('details-pane').hidden=true;selectionPane.hidden=false;
  const category=hierarchyCategories.find(c=>c.id===pickerCategory);
  const countryCodes=choice.kind==='membership'?choice.organisation.members:r.countries;
+ const regionCountries=r.category==='regions'?section('Region country guide',`<p class="note">Solid highlight: principal grouping. Amber dashed outline: partial or definition-dependent inclusion. Whole map entities are highlighted for context, not exact regional limits.</p>${[['Principal country grouping',r.regionCountries],['Partly included / definition-dependent',r.partialCountries],['Additional territories / wider definitions',r.additionalCountries]].filter(([,codes])=>codes?.length).map(([title,codes])=>`<h3>${esc(title)}</h3><div class="chips">${codes.map(c=>`<button data-picker-country="${esc(c)}">${esc(records[c]?.name||c)}</button>`).join('')}</div>`).join('')}<button class="load-more" id="refocus-region">Show region on map</button>`):'';
  selectionPane.innerHTML=`<div class="pane-head"><span class="eyebrow">${esc(category.label)}</span><button class="close-pane" id="close-selection" aria-label="Close selected item">×</button><h1>${esc(r.title)}</h1><p>${esc(r.summary)}</p></div><div class="pane-body">${section('Study details',`<p class="selection-period">${esc(r.period)}</p><ul>${r.facts.filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`)}${countryCodes.length?section(choice.kind==='membership'?'Countries in the cited membership list':'Country context',`<p class="note">${choice.kind==='institution'?'Headquarters / institutional-location context.':choice.kind==='membership'?'Select a country name to open its country panel.':'Country tags identify study context, not automatic membership or nationality.'}</p><div class="chips">${countryCodes.map(c=>`<button data-picker-country="${esc(c)}">${esc(records[c]?.name||c)}</button>`).join('')}</div>`):''}${section('Sources',`<div class="sources-small">${r.sources.map(s=>link(s.url,s.title)).join('')}</div>`)}<p class="note">Source snapshot / reading date: ${esc(r.reviewed)}</p>${topicById.has(r.id)?'<button class="load-more" id="picker-open-library">Open in Topic Explorer</button>':''}</div>`;
+ if(regionCountries){const body=selectionPane.querySelector('.pane-body');body.insertAdjacentHTML('afterbegin',regionCountries);const sections=[...body.querySelectorAll('.section')];sections.find(s=>s.querySelector('h2')?.textContent==='Country context')?.remove();document.getElementById('refocus-region').onclick=()=>{focusRegion(r);if(window.innerWidth<=760)document.querySelector('.map-area').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}}
  document.getElementById('close-selection').onclick=()=>{clearHierarchyEffects();pickerItem='';itemSelect.value='';closePane()};
  selectionPane.querySelectorAll('[data-picker-country]').forEach(b=>b.onclick=()=>selectCountry(b.dataset.pickerCountry));
  if(document.getElementById('picker-open-library'))document.getElementById('picker-open-library').onclick=()=>openTopics({category:r.category,country:'',query:r.title,prize:'',year:'',structure:'',lineType:''});
@@ -321,6 +338,9 @@ function applyHierarchyItem(key){
  if(choice.kind==='membership'){
   activeGroup=choice.organisation;setGroupHighlight();svg.interrupt().call(zoom.transform,d3.zoomIdentity);
   selectionStatus.textContent=`${choice.label} · ${activeGroup.members.length} countries in the cited membership list`;
+ }else if(choice.kind==='region'){
+  activeGroup={name:choice.label,members:[...choice.record.regionCountries,...choice.record.additionalCountries],partialCountries:choice.record.partialCountries,region:true};setGroupHighlight();focusRegion(choice.record);
+  selectionStatus.textContent=`${choice.label} · solid: principal / additional grouping · dashed: partial / variable extent`;
  }else if(choice.kind==='control'){
   setControlSelection(choice.record.title);
   selectionStatus.textContent=`${choice.label} · ${ATLAS.controlLineTypes[choice.record.lineType]} · ${choice.record.routeGroup?'source route context':'location marker'}`;
@@ -354,7 +374,7 @@ document.getElementById('reset-map-selection').onclick=()=>{chooseHierarchyCateg
 const hierarchySelectCountry=selectCountry;
 selectCountry=function(code){
  selectionPane.hidden=true;
- if(pickerCategory!=='membership'){pickerItem='';itemSelect.value='';selectionStatus.hidden=true}
+ if(!['membership','regions'].includes(pickerCategory)){pickerItem='';itemSelect.value='';selectionStatus.hidden=true}
  hierarchySelectCountry(code);
 };
 const hierarchyClosePane=closePane;closePane=function(){activeMapPoint=null;hierarchyClosePane();selectionPane.hidden=true};

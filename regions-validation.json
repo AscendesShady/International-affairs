@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-12",
+  "status": "passed",
+  "regionRecords": 8,
+  "categories": 14,
+  "runtimeChecks": 42,
+  "offlineChecks": 13,
+  "liveChecks": [
+    "Baltic states highlight Estonia, Latvia, Lithuania and show side-panel facts",
+    "Balkan partial outlines: Croatia, Romania, Slovenia, T\u00fcrkiye",
+    "Levant shows six principal/additional country highlights",
+    "320px phone no horizontal overflow",
+    "Topic Explorer region filter, search and Locate opens matching region",
+    "Phone Show region on map returns to map",
+    "No browser console errors"
+  ],
+  "mapScope": "Whole-country context highlighting; not traced regional boundaries"
+}

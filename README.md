@@ -55,7 +55,7 @@ PWA verification: 13 manifest/icon and service-worker lifecycle/offline-request 
 
 The final interface uses neutral branding: “Geography · History · World affairs”. The visible “BCS preparation” wording was removed; source references to historical exam questions remain as evidence inside the coverage material.
 
-39 DOM-emulation/runtime and static-asset checks passed, alongside the 13 PWA checks. Live browser checks covered phone widths of 320, 360, 390 and 430 pixels and a 1280-pixel desktop breakpoint. Menu dismissal, topic-category selection, and Topic Explorer → Ancient Egypt → Locate on map were verified, including matching details and retained 10× zoom. See `validation.json`, `phone-validation.json` and `pwa-validation.json`.
+42 DOM-emulation/runtime and static-asset checks passed, alongside the 13 PWA checks. Live browser checks covered phone widths of 320, 360, 390 and 430 pixels and a 1280-pixel desktop breakpoint. Menu dismissal, topic-category selection, and Topic Explorer → Ancient Egypt → Locate on map were verified, including matching details and retained 10× zoom. See `validation.json`, `phone-validation.json` and `pwa-validation.json`.
 
 G7 and Commonwealth membership lists and UNICEF institutional details were checked against their official sources on 9 October 2026. The G7 filter highlights seven countries; EU participation is described separately. Commonwealth has 56 countries in the cited list.
 
@@ -72,3 +72,14 @@ For an installed or cached PWA, use **Update app** when offered to load this lay
 Country and water labels use normal fixed font sizes with inverse SVG transforms, so browser minimum-font settings cannot turn a tiny zoom-adjusted font into oversized map text. The selected country name sits above its anchor to help separate it from the capital label. On phones, **Focus on country** also scrolls back to the map while keeping details open. Singapore was visually checked at 85× on desktop and a 390×844 phone viewport; its country label remained about 17 pixels high, with no horizontal overflow or console errors. Regression checks cover Bangladesh, Singapore, Vatican City and Russia through 2048×. See `label-validation.json`.
 
 Useful future features are saved study items, country comparison and recall quizzes using the cited facts already in the atlas. Additional study information should remain in country and topic panels to keep the map readable.
+
+
+## Regions and peninsulas · 12 October 2026
+
+Choose **Regions & peninsulas**, then a region: Baltics, Balkans, Western Balkans, Iberian Peninsula, Scandinavian Peninsula, Scandinavia, Nordic Region or Levant. Selection fits the principal grouping on the map and opens its country guide, study facts and dated sources. These records also appear in Topic Explorer and the linked countries' Topics tabs.
+
+Country highlighting is context, not a traced region outline. Solid highlights show principal countries and separately listed additional map entities. Amber dashed outlines mark partly included or definition-dependent countries. The panel distinguishes these lists. Clicking a country retains the regional highlight. Reset clears it. **Show region on map** refocuses the grouping and returns to the map on phones.
+
+Definitions distinguish landforms from cultural and policy groupings: Denmark belongs to narrow Scandinavia, but not the Scandinavian Peninsula; Finland's peninsula context is partial; Nordic Region is broader. Balkans has no universally fixed list, while the Council of the EU uses six Western Balkan partners. Not all Balkan countries experienced communist rule. Levant has flexible historical definitions, with Cyprus included by CBRL. Source links are provided in each record.
+
+42 runtime/static checks and 13 offline/PWA checks passed. Live browser checks covered Baltic highlights, Balkan variable inclusions, and Levant/Topic Explorer use at 320px with no horizontal overflow or console errors. See `regions-validation.json`.
