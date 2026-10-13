@@ -20,6 +20,7 @@ dialog{border:1px solid var(--line);border-radius:12px;width:min(850px,94vw);max
 [hidden]{display:none!important}
 /* Partial-country context is visually distinct from the principal region grouping. */
 .country.region-partial{fill:#f3dcad!important;stroke:#a8681c;stroke-width:1.6;stroke-dasharray:4 3}
+.pane-head .eyebrow{display:block;padding-right:44px;overflow-wrap:anywhere}
 
 .mobile-nav-toggle,.mobile-topic-category{display:none}
 @media(max-width:760px){

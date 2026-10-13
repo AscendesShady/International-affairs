@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "method": "Node DOM-emulation runtime and static asset checks; not a live browser",
-  "checks": 46,
+  "checks": 49,
   "details": [
     "Static edition loads four local JSON files under a GitHub project subpath",
     "All original country polygons render; details initially hidden",
@@ -47,19 +47,22 @@
     "Island selector includes shared-island states and excludes continental Australia",
     "Largest and longest records carry metrics, dates and qualified beach/city answers",
     "New regional groups retain exact country/economy contexts",
+    "New wars and revolutions populate their categories and open matching facts on the map",
+    "History search accepts requested spelling variants and separates ambiguous names",
+    "Revolution Locate from Topic Explorer opens dated matching facts in side panel",
     "Standalone companion runs without fetching files",
     "A failed local data load gives a useful visible error"
   ],
   "counts": {
-    "curated": 443,
+    "curated": 485,
     "nobelAwards": 1033,
     "nobelLaureates": 1025,
     "parliaments": 193,
     "controlLines": 25,
     "controlRouteSegments": 15
   },
-  "categories": 17,
-  "sourceSnapshot": "Base data 2026-10-08; geography extensions 2026-10-13",
+  "categories": 18,
+  "sourceSnapshot": "Base data 2026-10-08; history extensions reviewed 2026-10-13",
   "built": "2026-10-13",
-  "browserQA": "Live desktop and 390px phone: largest-city record opens dated metric/source facts; landlocked Nepal and island Japan open country panels; Four Tigers highlights KOR/HKG/TWN/SGP; no horizontal overflow or console errors."
+  "browserQA": "Live desktop: Badr and Rose Revolution facts/map location. Phone 390px: Bangladesh July\u2013August uprising, typo search cuba crissi and Locate to matching Cuban Missile Crisis panel. No horizontal overflow or console errors. Active locator labels reserve collision space."
 }

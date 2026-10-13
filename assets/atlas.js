@@ -49,6 +49,8 @@ function makeBox(pt,text,size=13,anchor='middle',offset=0){const q=transform.app
 function overlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
 function layoutLabels(){
  const k=transform.k,boxes=[];
+ // Reserve the active study locator's text before placing country/water labels.
+ root.selectAll('.topic-locator').each(function(r){if(r.xy)boxes.push(makeBox(projection(r.xy),r.title,13,'start',10))});
  // Keep text at a normal font size: inverse transforms avoid browser minimum-font
  // clamping when a tiny country is automatically magnified.
  labels.attr('font-size',13).style('font-size','13px').style('stroke-width',2.5).attr('transform',d=>`translate(${projection(d.xy)}) scale(${1/k})`).attr('x',0).attr('y',d=>d.code===selected?-20:0).attr('dy','.35em');

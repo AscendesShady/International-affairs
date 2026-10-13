@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-13",
+  "status": "passed",
+  "newRecords": 42,
+  "newWarsAndBattles": 22,
+  "newRevolutionsAndMovements": 20,
+  "runtimeChecks": 49,
+  "offlineChecks": 13,
+  "notes": [
+    "Battle, war, crisis, reform programme and cultural movement classifications are explicit",
+    "White Revolution: separate Iran and India records",
+    "August: separate Vietnam 1945 and Bangladesh 2024 records",
+    "Spring: separate 1848, Prague and Arab entries",
+    "Recent conflicts use bounded historical source snapshots, not live status",
+    "All new events have approximate point locators, country context and sources"
+  ],
+  "browserChecks": [
+    "Desktop Badr/Rose panels",
+    "390px Bangladesh panel without overflow",
+    "Typo search and Locate open matching Cuban crisis facts",
+    "No console errors"
+  ]
+}

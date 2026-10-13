@@ -94,3 +94,14 @@ Definitions distinguish landforms from cultural and policy groupings: Denmark be
 - The existing **Mountains & ranges** category remains available without duplication.
 
 The three new categories also appear in Topic Explorer and are linked through country Topics. Selecting a country from a geographic class opens its existing country facts and retains the group highlight. Reset clears the filter. Verification: 46 runtime/static checks, 13 offline/PWA checks, plus desktop and 390px phone checks. See `geography-validation.json`. Use **Menu → Update app** when offered to activate a cached PWA update.
+
+
+## Wars, battles and revolutions · 13 October 2026
+
+**Wars & battles** expands the existing World wars category without changing its internal ID. It adds 22 records: Badr, both Tarain battles, Trafalgar, Waterloo, Crimean War, Vietnam War, Korean War, Iran–Iraq War, Gulf War, the 2003 Iraq invasion, the 1948–1949 Arab–Israeli War, Suez, Six-Day War, October/Yom Kippur War, Cold War, Cuban Missile Crisis, Plassey, Buxar, Bangladesh Liberation War, October 2023 Israel–Gaza onset and June 2025 Israel–Iran escalation. Existing First/Second World War entries remain.
+
+**Revolutions & reform movements** adds 20 entries: French Revolution, Renaissance, Chinese Xinhai and communist revolutions, Cultural Revolution, Rose, Orange, Tulip, Vietnam August Revolution, Bangladesh July–August 2024 uprising, Arab Spring, Prague Spring, Spring of Nations, White Revolution in Iran, White Revolution/Operation Flood in India, Iranian Revolution, Russian February and October revolutions, Industrial Revolution and Velvet Revolution.
+
+Each new entry has a date/period, event classification, concise participants/outcome or reform context, approximate locator and historical source. Renaissance and dairy development are clearly classified rather than treated as political regime overthrows. Common spelling variants are searchable in Topic Explorer. Recent conflict entries describe their dated episodes, not current military positions, ceasefire status or casualty totals. Country tags denote selected historical locations/participants, not exact historical borders or collective responsibility.
+
+Phone and desktop checks passed, alongside 49 runtime/static checks and 13 offline checks. Locator text is now reserved during label placement, reducing collisions with country names; long category eyebrows wrap clear of the panel close button. See `history-validation.json`. Use **Menu → Update app** when offered for a cached PWA.
