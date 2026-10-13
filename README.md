@@ -83,3 +83,14 @@ Country highlighting is context, not a traced region outline. Solid highlights s
 Definitions distinguish landforms from cultural and policy groupings: Denmark belongs to narrow Scandinavia, but not the Scandinavian Peninsula; Finland's peninsula context is partial; Nordic Region is broader. Balkans has no universally fixed list, while the Council of the EU uses six Western Balkan partners. Not all Balkan countries experienced communist rule. Levant has flexible historical definitions, with Cyprus included by CBRL. Source links are provided in each record.
 
 42 runtime/static checks and 13 offline/PWA checks passed. Live browser checks covered Baltic highlights, Balkan variable inclusions, and Levant/Topic Explorer use at 320px with no horizontal overflow or console errors. See `regions-validation.json`.
+
+
+## Geography extensions · 13 October 2026
+
+- **Largest & longest** has 11 entries for beaches, country population, city population, country area, river length, islands, ocean area, hot deserts, lakes and landlocked-country area. Each names its comparison metric and source. Jakarta uses UN WUP 2025; city-proper and other urban definitions can differ. Cox’s Bazar retains the official natural/unbroken sandy-beach description as an attributed claim; Praia do Cassino and the Nile have measurement/definition caveats.
+- **Landlocked countries** offers All, the doubly landlocked pair, and individual country entries. The stated scope is 43 UN member states plus Vatican City, with Kosovo as separate additional map context. It is not the UN LLDC list. A Caspian coast does not provide ocean access.
+- **Island countries** offers an All highlight and individual country entries. This UN-member geographic list excludes continental Australia and dependencies. Shared-island countries with land borders are included. It is not the UN SIDS list.
+- **Regions & peninsulas** now includes Golden Triangle, Golden Crescent, Four Asian Tigers and Horn of Africa. The Tigers are four economies, not four universally recognised sovereign states or a contiguous landmass. The Golden groupings are historical geographic labels, not current production maps. Whole-country highlights provide context, not exact borderland extents.
+- The existing **Mountains & ranges** category remains available without duplication.
+
+The three new categories also appear in Topic Explorer and are linked through country Topics. Selecting a country from a geographic class opens its existing country facts and retains the group highlight. Reset clears the filter. Verification: 46 runtime/static checks, 13 offline/PWA checks, plus desktop and 390px phone checks. See `geography-validation.json`. Use **Menu → Update app** when offered to activate a cached PWA update.

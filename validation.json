@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "method": "Node DOM-emulation runtime and static asset checks; not a live browser",
-  "checks": 42,
+  "checks": 46,
   "details": [
     "Static edition loads four local JSON files under a GitHub project subpath",
     "All original country polygons render; details initially hidden",
@@ -40,22 +40,26 @@
     "Phone topic dropdown uses the existing category filtering and keeps its value synced",
     "Country and water text stay at readable font sizes even at maximum zoom",
     "Phone focus button returns to the map without closing the country details",
-    "All eight region definitions show distinct country context and fit a finite map extent",
+    "All twelve region definitions show distinct country context and fit a finite map extent",
     "Region library Locate opens region details and highlights countries",
     "Region definitions distinguish peninsula, cultural and policy lists",
+    "Landlocked selector scopes 44 countries plus Kosovo and opens individual country details",
+    "Island selector includes shared-island states and excludes continental Australia",
+    "Largest and longest records carry metrics, dates and qualified beach/city answers",
+    "New regional groups retain exact country/economy contexts",
     "Standalone companion runs without fetching files",
     "A failed local data load gives a useful visible error"
   ],
   "counts": {
-    "curated": 425,
+    "curated": 443,
     "nobelAwards": 1033,
     "nobelLaureates": 1025,
     "parliaments": 193,
     "controlLines": 25,
     "controlRouteSegments": 15
   },
-  "categories": 14,
-  "sourceSnapshot": "2026-10-08; regions reviewed 2026-10-12",
-  "built": "2026-10-12",
-  "browserQA": "Live browser: Baltic states fit/highlights and facts; Balkan partial-country outlines; Levant and Topic Explorer region Locate on 320px phone; no overflow or console errors."
+  "categories": 17,
+  "sourceSnapshot": "Base data 2026-10-08; geography extensions 2026-10-13",
+  "built": "2026-10-13",
+  "browserQA": "Live desktop and 390px phone: largest-city record opens dated metric/source facts; landlocked Nepal and island Japan open country panels; Four Tigers highlights KOR/HKG/TWN/SGP; no horizontal overflow or console errors."
 }

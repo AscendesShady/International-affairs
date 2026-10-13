@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-13",
+  "status": "passed",
+  "runtimeChecks": 46,
+  "offlineChecks": 13,
+  "superlatives": 11,
+  "regions": 12,
+  "landlockedScope": "43 UN members + Vatican City; Kosovo separately included",
+  "islandUNMembers": 46,
+  "browserChecks": [
+    "Jakarta metric, source date and map locator",
+    "Landlocked category \u2192 Nepal country details",
+    "Island category \u2192 Japan on phone",
+    "Four Tigers country/economy highlights on phone",
+    "390px no horizontal overflow",
+    "No console errors"
+  ],
+  "mountains": "Existing category preserved"
+}

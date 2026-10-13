@@ -153,7 +153,7 @@ function shortTopicCard(r){
  if(r.category==='nobel'){
    awardBasis=`<p class="association-note">Country association: ${r.organisationLocation?`organisation location in ${esc(r.organisationLocation)}`:r.birthCode?`birthplace in ${esc(records[r.birthCode]?.name||r.birthCode)}`:'no mapped personal birthplace'}${r.affiliationCodes.length?`; award affiliation in ${r.affiliationCodes.map(c=>esc(records[c]?.name||c)).join(', ')}`:''}. ${r.laureateType==='organisation'?'Organisation laureate.':''}</p>`;
  }
- return `<article class="topic-card" data-topic-id="${esc(r.id)}"><div class="topic-meta"><span>${esc(categoryLabels.get(r.category))}</span><span>${esc(r.period)}</span></div><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p>${awardBasis}<details><summary>Study details & sources</summary><ul>${r.facts.filter(Boolean).map(f=>`<li>${esc(f)}</li>`).join('')}</ul>${r.members?`<p><b>Members in the cited list</b></p><div class="topic-countries">${r.members.map(c=>`<button class="country-link" data-topic-country="${esc(c)}">${esc(records[c]?.name||c)}</button>`).join('')}</div>`:''}${r.partnerMembers?.length?`<p class="note">Partners, shown separately: ${r.partnerMembers.map(c=>esc(records[c]?.name||c)).join(', ')}. Partners are not included in the member highlight.</p>`:''}${r.formerMembers?.length?`<p class="note">Selected former members: ${r.formerMembers.map(c=>esc(records[c]?.name||c)).join(', ')}.</p>`:''}<div class="topic-sources">${r.sources.map(s=>link(s.url,s.title)).join('')}</div><p class="note">Source snapshot / reading date: ${esc(r.reviewed)}. Country tags identify the record’s stated context.</p></details><div class="topic-countries">${countryLinks}${r.countries.length>6?`<span class="note">+${r.countries.length-6} more in details</span>`:''}</div><div class="topic-actions">${(r.xy||r.category==='regions')?`<button data-locate-topic="${esc(r.id)}">Locate on map</button>`:''}${r.members?`<button data-members-topic="${esc(r.id)}">Highlight members</button>`:''}</div></article>`;
+ return `<article class="topic-card" data-topic-id="${esc(r.id)}"><div class="topic-meta"><span>${esc(categoryLabels.get(r.category))}</span><span>${esc(r.period)}</span></div><h3>${esc(r.title)}</h3><p>${esc(r.summary)}</p>${awardBasis}<details><summary>Study details & sources</summary><ul>${r.facts.filter(Boolean).map(f=>`<li>${esc(f)}</li>`).join('')}</ul>${r.members?`<p><b>Members in the cited list</b></p><div class="topic-countries">${r.members.map(c=>`<button class="country-link" data-topic-country="${esc(c)}">${esc(records[c]?.name||c)}</button>`).join('')}</div>`:''}${r.partnerMembers?.length?`<p class="note">Partners, shown separately: ${r.partnerMembers.map(c=>esc(records[c]?.name||c)).join(', ')}. Partners are not included in the member highlight.</p>`:''}${r.formerMembers?.length?`<p class="note">Selected former members: ${r.formerMembers.map(c=>esc(records[c]?.name||c)).join(', ')}.</p>`:''}<div class="topic-sources">${r.sources.map(s=>link(s.url,s.title)).join('')}</div><p class="note">Source snapshot / reading date: ${esc(r.reviewed)}. Country tags identify the record’s stated context.</p></details><div class="topic-countries">${countryLinks}${r.countries.length>6?`<span class="note">+${r.countries.length-6} more in details</span>`:''}</div><div class="topic-actions">${(r.xy||r.category==='regions'||r.groupCountries)?`<button data-locate-topic="${esc(r.id)}">Locate on map</button>`:''}${r.members?`<button data-members-topic="${esc(r.id)}">Highlight members</button>`:''}</div></article>`;
 }
 function wireTopicActions(container){
  container.querySelectorAll('[data-topic-country]').forEach(b=>b.onclick=()=>{if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');selectCountry(b.dataset.topicCountry)});
@@ -285,13 +285,17 @@ function featureChoices(kind){return ATLAS.features.filter(f=>f.kind===kind&&f.n
  facts:['The locator gives a general position, not a surveyed extent, navigation route or territorial claim.'],
  sources:[{title:'Reference / further reading',url:f.source}],tags:[kind],reviewed:'2026-10-08',xy:f.xy
  }})).sort((a,b)=>a.label.localeCompare(b.label))}
-function studyChoices(category){return KNOWLEDGE.records.filter(r=>r.category===category).map(r=>({key:r.id,label:r.title,kind:category==='control-lines'?'control':category==='regions'?'region':'topic',record:r})).sort((a,b)=>a.label.localeCompare(b.label))}
+function studyChoices(category){return KNOWLEDGE.records.filter(r=>r.category===category).map(r=>({key:r.id,label:r.title,kind:category==='control-lines'?'control':category==='regions'?'region':r.groupCountries?'country-group':'topic',record:r})).sort((a,b)=>a.label.localeCompare(b.label))}
+function classifiedCountryChoices(category){const groups=studyChoices(category),all=groups.find(x=>x.record.id.endsWith('-all'));return [...groups,...all.record.countries.map(code=>({key:'country-'+code,label:records[code].name+(all.record.additionalCountries.includes(code)?' · additional map entity':''),kind:'classified-country',code,record:all.record}))]}
 const mountainNames=new Set(['Mount Everest','Himalayas','K2','Andes','Alps','Ural Mountains']);
 const geographyChoices=featureChoices('study');
 const hierarchyCategories=[
  {id:'institutions',label:'Institutions',itemLabel:'Institution',choices:institutionChoices},
  {id:'membership',label:'Membership',itemLabel:'Group / alliance',choices:ATLAS.organisations.map(o=>({key:o.name,label:o.name,kind:'membership',organisation:o,record:topicById.get('organisation-'+o.name.toLowerCase())})).sort((a,b)=>a.label.localeCompare(b.label))},
  {id:'regions',label:'Regions & peninsulas',itemLabel:'Region / peninsula',choices:studyChoices('regions')},
+ {id:'superlatives',label:'Largest & longest',itemLabel:'Record / measure',choices:studyChoices('superlatives')},
+ {id:'landlocked',label:'Landlocked countries',itemLabel:'Country / group',choices:classifiedCountryChoices('landlocked')},
+ {id:'island-countries',label:'Island countries',itemLabel:'Country / group',choices:classifiedCountryChoices('island-countries')},
  {id:'straits',label:'Straits & passages',itemLabel:'Strait / passage',choices:featureChoices('strait')},
  {id:'canals',label:'Canals',itemLabel:'Canal',choices:featureChoices('canal')},
  {id:'control-lines',label:'Control lines & boundaries',itemLabel:'Line / boundary reference',choices:studyChoices('control-lines')},
@@ -299,7 +303,7 @@ const hierarchyCategories=[
  {id:'seas',label:'Seas, gulfs & bays',itemLabel:'Sea / gulf / bay',choices:featureChoices('sea')},
  {id:'mountains',label:'Mountains & ranges',itemLabel:'Mountain / range',choices:geographyChoices.filter(x=>mountainNames.has(x.label))},
  {id:'geography',label:'Rivers, lakes & places',itemLabel:'Geographic place',choices:geographyChoices.filter(x=>!mountainNames.has(x.label))},
- ...KNOWLEDGE.metadata.categories.filter(c=>!['organisations','geography','control-lines','regions'].includes(c.id)).map(c=>({id:c.id,label:c.label,itemLabel:'Study item',choices:studyChoices(c.id)}))
+ ...KNOWLEDGE.metadata.categories.filter(c=>!['organisations','geography','control-lines','regions','superlatives','landlocked','island-countries'].includes(c.id)).map(c=>({id:c.id,label:c.label,itemLabel:'Study item',choices:studyChoices(c.id)}))
 ];
 const categorySelect=document.getElementById('map-category'),itemSelect=document.getElementById('map-item');
 const selectionPane=document.getElementById('selection-pane'),selectionStatus=document.getElementById('selection-status');
@@ -335,7 +339,13 @@ function applyHierarchyItem(key){
  const category=hierarchyCategories.find(c=>c.id===pickerCategory),choice=category?.choices.find(x=>x.key===key);
  clearHierarchyEffects();pickerItem=choice?key:'';itemSelect.value=pickerItem;
  if(!choice){closePane();return}
- if(choice.kind==='membership'){
+ if(choice.kind==='classified-country'||choice.kind==='country-group'){
+  activeGroup={name:choice.record.title,members:choice.record.countries};setGroupHighlight();
+  selectionStatus.textContent=choice.record.title+' · '+choice.record.groupCountries.length+' countries in the stated scope'+(choice.record.additionalCountries.length?' + additional map context':'');
+  selectionStatus.hidden=false;
+  if(choice.kind==='classified-country'){selectCountry(choice.code);return}
+  svg.interrupt().call(zoom.transform,d3.zoomIdentity);
+ }else if(choice.kind==='membership'){
   activeGroup=choice.organisation;setGroupHighlight();svg.interrupt().call(zoom.transform,d3.zoomIdentity);
   selectionStatus.textContent=`${choice.label} · ${activeGroup.members.length} countries in the cited membership list`;
  }else if(choice.kind==='region'){
@@ -374,7 +384,7 @@ document.getElementById('reset-map-selection').onclick=()=>{chooseHierarchyCateg
 const hierarchySelectCountry=selectCountry;
 selectCountry=function(code){
  selectionPane.hidden=true;
- if(!['membership','regions'].includes(pickerCategory)){pickerItem='';itemSelect.value='';selectionStatus.hidden=true}
+ if(!['membership','regions','landlocked','island-countries'].includes(pickerCategory)){pickerItem='';itemSelect.value='';selectionStatus.hidden=true}
  hierarchySelectCountry(code);
 };
 const hierarchyClosePane=closePane;closePane=function(){activeMapPoint=null;hierarchyClosePane();selectionPane.hidden=true};
