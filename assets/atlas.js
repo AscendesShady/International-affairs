@@ -421,6 +421,44 @@ openTopics=function(preset={}){
 const mobileRenderLibrary=renderLibraryResults;
 renderLibraryResults=function(){mobileRenderLibrary();const select=document.getElementById('mobile-library-category');if(select)select.value=libraryState.category};
 
+
+// Touch: one finger belongs to page scrolling/taps; two fingers control the map.
+// D3 continues to handle mouse dragging, wheel zoom and the zoom buttons.
+zoom.touchable(()=>false);
+svg.on('.zoom',null).call(zoom).on('dblclick.zoom',null);
+svg.style('touch-action','auto');
+const touchMapElement=svg.node();
+let mapTouchGesture=null,mapTouchWasMulti=false,mapTouchClickTimer=null;
+function touchMapPoint(t){const r=touchMapElement.getBoundingClientRect();return [(t.clientX-r.left)*width/r.width,(t.clientY-r.top)*height/r.height]}
+function touchMapPair(touches){const a=touchMapPoint(touches[0]),b=touchMapPoint(touches[1]);return {center:[(a[0]+b[0])/2,(a[1]+b[1])/2],distance:Math.max(1,Math.hypot(b[0]-a[0],b[1]-a[1]))}}
+function beginTouchMap(e){
+ if(e.touches.length<2){mapTouchGesture=null;return}
+ e.preventDefault();svg.interrupt();clearTimeout(mapTouchClickTimer);
+ const pair=touchMapPair(e.touches);
+ mapTouchGesture={anchor:transform.invert(pair.center),distance:pair.distance,scale:transform.k};
+ mapTouchWasMulti=true;hideTooltip();
+}
+function moveTouchMap(e){
+ if(e.touches.length<2){mapTouchGesture=null;return}
+ e.preventDefault();
+ if(!mapTouchGesture){beginTouchMap(e);return}
+ const pair=touchMapPair(e.touches),range=zoom.scaleExtent();
+ const k=Math.max(range[0],Math.min(range[1],mapTouchGesture.scale*pair.distance/mapTouchGesture.distance));
+ const t=d3.zoomIdentity.translate(pair.center[0]-k*mapTouchGesture.anchor[0],pair.center[1]-k*mapTouchGesture.anchor[1]).scale(k);
+ svg.call(zoom.transform,zoom.constrain()(t,[[0,0],[width,height]],zoom.translateExtent()));
+}
+function endTouchMap(e){
+ if(e.touches.length>=2){beginTouchMap(e);return}
+ mapTouchGesture=null;
+ // Lifting one finger ends panning immediately; suppress a pinch's synthetic tap.
+ if(e.touches.length===0&&mapTouchWasMulti)mapTouchClickTimer=setTimeout(()=>{mapTouchWasMulti=false},350);
+}
+touchMapElement.addEventListener('touchstart',beginTouchMap,{passive:false});
+touchMapElement.addEventListener('touchmove',moveTouchMap,{passive:false});
+touchMapElement.addEventListener('touchend',endTouchMap,{passive:false});
+touchMapElement.addEventListener('touchcancel',()=>{mapTouchGesture=null;if(mapTouchWasMulti)mapTouchClickTimer=setTimeout(()=>{mapTouchWasMulti=false},350)},{passive:true});
+touchMapElement.addEventListener('click',e=>{if(mapTouchWasMulti){e.preventDefault();e.stopImmediatePropagation()}},true);
+
  window.ATLAS_READY=true;
 }catch(error){const loading=document.getElementById('loading');loading.style.display='grid';loading.innerHTML='<span>Atlas could not load.<br><small id="load-error-detail"></small><br>For the Pages edition, use GitHub Pages or a local web server. For double-click review, open world-atlas-preview.html.</span>';document.getElementById('load-error-detail').textContent=error.message;console.error(error);window.ATLAS_LOAD_ERROR=error.message;}
 })();

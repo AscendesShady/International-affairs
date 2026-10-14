@@ -23,6 +23,20 @@ dialog{border:1px solid var(--line);border-radius:12px;width:min(850px,94vw);max
 .pane-head .eyebrow{display:block;padding-right:44px;overflow-wrap:anywhere}
 
 .mobile-nav-toggle,.mobile-topic-category{display:none}
+/* The native/touch handler reserves two-finger gestures for the map. */
+.map-stage svg{touch-action:auto}
+.touch-hint{display:none}
+@media(any-pointer:coarse),(max-width:760px){.touch-hint{display:block;position:absolute;top:10px;left:12px;right:12px;width:fit-content;max-width:calc(100% - 24px);padding:6px 9px;border-radius:6px;background:#fffffff0;border:1px solid #d2e1e5;color:#315663;font-size:12px;line-height:1.4;pointer-events:none}}
+@media(min-width:761px) and (max-width:1100px){
+ .hierarchy-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:8px}
+ .layers-menu,.hierarchy-reset{justify-self:stretch;width:100%}
+ .hierarchy-field select,.layers-menu summary,.hierarchy-reset{height:44px;font-size:16px}
+}
+@media(any-pointer:coarse){
+ button,.pane-tabs button,.topic-actions button,.country-index button,.chips button{min-height:44px}
+ .searchbox input,.hierarchy-field select,.library-filters input,.library-filters select{font-size:16px;min-height:44px}
+ .layers-menu summary{min-height:44px}
+}
 @media(max-width:760px){
  header{height:auto;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:12px;position:relative;z-index:30}
  .brand{min-width:0;flex:initial;grid-column:1;grid-row:1}.brand strong{font-size:22px;line-height:1.2}.brand span{font-size:9px;letter-spacing:1.1px;line-height:1.5;display:block;margin-top:4px}
@@ -59,3 +73,5 @@ dialog{border:1px solid var(--line);border-radius:12px;width:min(850px,94vw);max
  .country-link{font-size:13px;min-height:34px;padding:5px 8px}.country-index{gap:8px}.country-index button{font-size:14px;min-height:44px;padding:8px}
 }
 @media(max-width:350px){.brand strong{font-size:20px}.brand span{font-size:8px;letter-spacing:.7px}.mobile-nav-toggle{min-width:58px;padding:9px}.hierarchy-toolbar{gap:8px}.hierarchy-field select{font-size:15px}.map-caption{font-size:9px}.attribution,.offline-status{font-size:9px}}
+
+@media(any-pointer:coarse){.chips button,.country-link,.library-status button{min-height:44px}}

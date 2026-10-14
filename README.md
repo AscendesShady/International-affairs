@@ -105,3 +105,11 @@ The three new categories also appear in Topic Explorer and are linked through co
 Each new entry has a date/period, event classification, concise participants/outcome or reform context, approximate locator and historical source. Renaissance and dairy development are clearly classified rather than treated as political regime overthrows. Common spelling variants are searchable in Topic Explorer. Recent conflict entries describe their dated episodes, not current military positions, ceasefire status or casualty totals. Country tags denote selected historical locations/participants, not exact historical borders or collective responsibility.
 
 Phone and desktop checks passed, alongside 49 runtime/static checks and 13 offline checks. Locator text is now reserved during label placement, reducing collisions with country names; long category eyebrows wrap clear of the panel close button. See `history-validation.json`. Use **Menu → Update app** when offered for a cached PWA.
+
+## Android and touch update — 14 October 2026
+
+Touch maps require two fingers for panning and pinch zoom. A one-finger swipe scrolls the page without panning the map; taps still select countries. Phone controls use the compact Menu and paired dropdowns; medium tablet widths use two toolbar columns. Touch users see a gesture hint above the map.
+
+The companion signed APK bundles the same site for offline first launch on Android 8 or newer. It is provided separately from this public folder. Only this folder's contents belong in the GitHub repository.
+
+Current checks: 50 runtime/static checks and 13 PWA/offline checks passed. Two-finger behavior was checked using synthetic touch events. Fresh visual and physical Android installation checks were unavailable for this release; earlier browser reports describe earlier checks.

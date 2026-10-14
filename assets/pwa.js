@@ -1,10 +1,17 @@
 'use strict';
 (() => {
   if (location.protocol !== 'https:' && location.protocol !== 'http:') return;
-  if (!('serviceWorker' in navigator)) return;
   const status = document.getElementById('offline-status');
   const installButton = document.getElementById('install-app');
   const updateButton = document.getElementById('update-app');
+  // The Android APK already bundles this release; its updates come from a new APK.
+  if (location.hostname === 'appassets.androidplatform.net') {
+    if (status) status.textContent = 'Offline · bundled Android app';
+    if (installButton) installButton.hidden = true;
+    if (updateButton) updateButton.hidden = true;
+    return;
+  }
+  if (!('serviceWorker' in navigator)) return;
   let installPrompt = null;
   let registration = null;
   let applyingUpdate = false;

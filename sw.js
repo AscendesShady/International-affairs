@@ -1,5 +1,5 @@
 'use strict';
-const VERSION = '9e6695cead22536b';
+const VERSION = '74c97233ac497011';
 // CacheStorage is shared by origin: include the full scope to protect other Pages apps.
 const CACHE_PREFIX = 'world-study-atlas:' + self.registration.scope + ':';
 const CACHE_NAME = CACHE_PREFIX + VERSION;
