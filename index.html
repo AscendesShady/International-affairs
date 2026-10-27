@@ -15,8 +15,8 @@
 <body>
 <header>
  <div class="brand"><strong>World Study Atlas</strong><span>Geography · History · World affairs</span></div>
- <div class="searchbox"><label for="country-search" aria-label="Search">⌕</label><input id="country-search" type="search" placeholder="Find a country…" autocomplete="off" aria-label="Find a country by name" aria-controls="search-results" aria-expanded="false"><div id="search-results" class="search-results" aria-label="Country matches"></div></div>
- <button id="mobile-nav-toggle" class="mobile-nav-toggle" aria-expanded="false" aria-controls="header-actions">Menu</button><div id="header-actions" class="header-actions"><button id="install-app" hidden>Install app</button><button id="update-app" hidden>Update app</button><button id="topics-btn">Topics</button><button id="country-index-btn">Country index</button><button id="study-btn">Topic coverage</button><button id="sources-btn">Sources</button></div>
+ <div class="searchbox"><label for="country-search" aria-label="Search">⌕</label><input id="country-search" type="search" placeholder="Search countries, capitals, people, topics…" autocomplete="off" aria-label="Search the whole atlas" aria-controls="search-results" aria-expanded="false"><div id="search-results" class="search-results" aria-label="Atlas search results"></div></div>
+ <button id="mobile-nav-toggle" class="mobile-nav-toggle" aria-expanded="false" aria-controls="header-actions">Menu</button><div id="header-actions" class="header-actions"><button id="install-app" hidden>Install app</button><button id="update-app" hidden>Update app</button><button id="timeline-btn">Timeline</button><button id="topics-btn">Topics</button><button id="country-index-btn">Country index</button><button id="study-btn">Topic coverage</button><button id="sources-btn">Sources</button></div>
 </header>
 <main class="workspace">
  <section class="map-area" aria-label="Interactive world map">
@@ -28,7 +28,7 @@
    <div class="loading" id="loading"><span>Drawing the world map…</span></div>
   </div>
  </section>
- <aside id="country-pane" aria-label="Selected country details">
+ <aside id="country-pane" aria-label="Selected country or topic details"><div class="panel-toolbar" hidden><button id="panel-toggle" aria-expanded="true" aria-controls="details-pane selection-pane">Collapse details</button><button id="panel-map">Map</button><label class="panel-width-label">Panel width<input id="panel-width" type="range" min="300" max="620" step="20" value="392" aria-label="Detail panel width"></label></div>
   <div class="empty" id="empty-pane"><span class="eyebrow">Your geography reference</span><h1>The world, one country at a time.</h1><p>Click a country name to reveal its capital, currency, neighbours, waterways, named borders and peoples.</p><div class="step"><b>1</b><span>Zoom in for smaller countries and regional features.</span></div><div class="step"><b>2</b><span>Use the country index for tiny islands and territories.</span></div><div class="step"><b>3</b><span>Read the Study tab for geography and international-affairs study cues.</span></div><div class="scope">Details stay hidden until you select a country. Use Topics for the study library, including organisation filters, treaties, books and Nobel records.</div></div>
   <div id="details-pane" hidden></div><div id="selection-pane" hidden></div>
  </aside>

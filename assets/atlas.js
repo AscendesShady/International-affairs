@@ -104,7 +104,7 @@ function renderPane(){const c=records[selected],details=document.getElementById(
 }
 const search=document.getElementById('country-search'),results=document.getElementById('search-results');
 function closeSearch(){results.classList.remove('open');search.setAttribute('aria-expanded','false')}
-function searchCountries(){const q=search.value.trim().toLocaleLowerCase();if(!q){closeSearch();return}const matches=allCountries.filter(c=>[c.name,c.official,c.code,...c.aliases].some(n=>n.toLocaleLowerCase().includes(q))).sort((a,b)=>(a.name.toLowerCase().startsWith(q)?-1:0)-(b.name.toLowerCase().startsWith(q)?-1:0)).slice(0,14);results.innerHTML=matches.length?matches.map(c=>`<button data-match="${esc(c.code)}">${esc(c.name)}<small>${esc(c.region)} · ${esc(c.code)}</small></button>`).join(''):'<p style="padding:12px">No matching country. Try its common name or ISO code.</p>';results.classList.add('open');search.setAttribute('aria-expanded','true');results.querySelectorAll('button').forEach(b=>b.onclick=()=>selectCountry(b.dataset.match))}
+function searchCountries(){runUnifiedSearch()}
 search.addEventListener('input',searchCountries);search.addEventListener('focus',()=>{if(search.value)searchCountries()});search.addEventListener('keydown',e=>{if(e.key==='Escape')closeSearch();if(e.key==='Enter'){const b=results.querySelector('button');if(b){e.preventDefault();selectCountry(b.dataset.match)}}if(e.key==='ArrowDown'){const b=results.querySelector('button');if(b){e.preventDefault();b.focus()}}});
 document.addEventListener('click',e=>{if(!e.target.closest('.searchbox'))closeSearch()});
 document.getElementById('zoom-in').onclick=()=>svg.transition().duration(200).call(zoom.scaleBy,1.6);document.getElementById('zoom-out').onclick=()=>svg.transition().duration(200).call(zoom.scaleBy,1/1.6);document.getElementById('fit-world').onclick=()=>svg.transition().duration(400).call(zoom.transform,d3.zoomIdentity);
@@ -458,6 +458,144 @@ touchMapElement.addEventListener('touchmove',moveTouchMap,{passive:false});
 touchMapElement.addEventListener('touchend',endTouchMap,{passive:false});
 touchMapElement.addEventListener('touchcancel',()=>{mapTouchGesture=null;if(mapTouchWasMulti)mapTouchClickTimer=setTimeout(()=>{mapTouchWasMulti=false},350)},{passive:true});
 touchMapElement.addEventListener('click',e=>{if(mapTouchWasMulti){e.preventDefault();e.stopImmediatePropagation()}},true);
+
+// Shared offline study tools. No accounts, remote search or telemetry.
+const foldSearch=s=>normaliseText(s).replace(/[’']/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+const globalIndex=[];
+for(const c of allCountries){
+ const currency=Object.entries(c.currencies).flatMap(([code,v])=>[code,v.name]);
+ globalIndex.push({key:'country:'+c.code,group:'Countries & capitals',title:c.name,subtitle:[...c.capital,...currency].join(' · '),code:c.code,
+  terms:foldSearch([c.name,c.official,c.code,...c.aliases,...c.capital,...currency,...c.languages].join(' '))});
+}
+for(const r of KNOWLEDGE.records)globalIndex.push({key:'topic:'+r.id,group:r.category==='nobel'?'Nobel laureates':'Topics & history',title:r.title,subtitle:(categoryLabels.get(r.category)||r.category)+' · '+r.period,record:r,terms:foldSearch(topicSearch.get(r.id))});
+const existingTitles=new Set(globalIndex.map(x=>foldSearch(x.title)));
+for(const cat of hierarchyCategories)for(const c of cat.choices){
+ if(!c.record||existingTitles.has(foldSearch(c.label)))continue;
+ existingTitles.add(foldSearch(c.label));globalIndex.push({key:cat.id+':'+c.key,group:'Places & institutions',title:c.label,subtitle:cat.label,category:cat.id,choice:c.key,record:c.record,terms:foldSearch([c.label,c.record.summary,...c.record.facts,...c.record.tags].join(' '))});
+}
+function unifiedMatches(query){
+ const q=foldSearch(query),tokens=q.split(' ').filter(Boolean);if(!tokens.length)return [];
+ return globalIndex.filter(x=>tokens.every(t=>x.terms.includes(t))).map(x=>({item:x,score:foldSearch(x.title)===q?0:foldSearch(x.title).startsWith(q)?1:foldSearch(x.subtitle).includes(q)?2:3}))
+  .sort((a,b)=>a.score-b.score||a.item.title.localeCompare(b.item.title)).map(x=>x.item);
+}
+function openUnifiedItem(item){
+ closeSearch();search.value='';
+ if(item.code)selectCountry(item.code);
+ else if(item.category){chooseHierarchyCategory(item.category);applyHierarchyItem(item.choice)}
+ else showLocatedTopic(item.record);
+}
+function runUnifiedSearch(){
+ const matches=unifiedMatches(search.value);if(!search.value.trim()){closeSearch();return}
+ const groups=['Countries & capitals','Topics & history','Places & institutions','Nobel laureates'];
+ results.innerHTML=`<p class="search-count" role="status">${matches.length} matching entries · top results by group</p>`+groups.map(group=>{
+  const rows=matches.filter(x=>x.group===group).slice(0,6);
+  return rows.length?`<section class="search-group"><h2>${esc(group)}</h2>${rows.map(x=>`<button data-unified-key="${esc(x.key)}">${esc(x.title)}<small>${esc(x.subtitle)}</small></button>`).join('')}</section>`:'';
+ }).join('')+(matches.length?'':'<p class="search-count">No matches. Try a name, capital, currency, author or shorter spelling.</p>');
+ results.classList.add('open');search.setAttribute('aria-expanded','true');
+ results.querySelectorAll('[data-unified-key]').forEach(b=>b.onclick=()=>openUnifiedItem(globalIndex.find(x=>x.key===b.dataset.unifiedKey)));
+}
+search.addEventListener('keydown',e=>{
+ if(['Enter','ArrowDown','Escape'].includes(e.key)){e.preventDefault();e.stopImmediatePropagation();if(e.key==='Escape'){closeSearch();return}const b=results.querySelector('[data-unified-key]');if(e.key==='Enter')b?.click();else b?.focus()}
+},true);
+results.addEventListener('keydown',e=>{
+ const buttons=[...results.querySelectorAll('[data-unified-key]')],i=buttons.indexOf(document.activeElement);
+ if(e.key==='Escape'){closeSearch();search.focus()}
+ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();buttons[(i+(e.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length]?.focus()}
+});
+
+// Timeline is an accessible chronological list, not a graph of modern borders.
+const timelineRecords=KNOWLEDGE.records.filter(r=>Number.isFinite(r.timelineStart)&&Number.isFinite(r.timelineEnd));
+let timelineShown=40;
+const timelineState={query:'',category:'',country:'',from:'',to:''};
+function yearLabel(y){return y<0?Math.abs(y)+' BCE':y===0?'1 BCE / 1 CE boundary':y+' CE'}
+function timelineMatches(state=timelineState){
+ const q=foldSearch(state.query),from=state.from===''?-Infinity:Number(state.from),to=state.to===''?Infinity:Number(state.to);
+ if(from>to)return [];
+ return timelineRecords.filter(r=>(!state.category||r.category===state.category)&&(!state.country||r.countries.includes(state.country))&&(!q||foldSearch(topicSearch.get(r.id)).includes(q))&&r.timelineStart<=to&&r.timelineEnd>=from)
+  .sort((a,b)=>a.timelineStart-b.timelineStart||a.timelineEnd-b.timelineEnd||a.title.localeCompare(b.title));
+}
+function renderTimeline(){
+ const list=timelineMatches(),invalid=timelineState.from!==''&&timelineState.to!==''&&Number(timelineState.from)>Number(timelineState.to);
+ document.getElementById('timeline-status').textContent=invalid?'Start year must not exceed end year.':`${list.length} entries · ordered by start year · showing ${Math.min(list.length,timelineShown)}`;
+ document.getElementById('timeline-list').innerHTML=list.slice(0,timelineShown).map(r=>`<li><div class="timeline-date">${esc(yearLabel(r.timelineStart))}${r.timelineEnd!==r.timelineStart?' – '+esc(yearLabel(r.timelineEnd)):''}${r.timelineApproximate?' · approximate':''}</div><article><span class="eyebrow">${esc(categoryLabels.get(r.category))}</span><h3>${esc(r.title)}</h3><p>${esc(r.period)}</p><p>${esc(r.summary)}</p><button data-timeline-id="${esc(r.id)}">Open details${r.xy?' & map':''}</button></article></li>`).join('')||'<li class="timeline-empty">No dated entries match these filters.</li>';
+ document.getElementById('timeline-more').hidden=list.length<=timelineShown;
+ document.querySelectorAll('[data-timeline-id]').forEach(b=>b.onclick=()=>{const r=topicById.get(b.dataset.timelineId);dialog.close();showLocatedTopic(r)});
+}
+function openTimeline(){
+ dialog.classList.remove('topics-dialog');dialog.classList.add('timeline-dialog');timelineShown=40;
+ openDialog('History timeline',`<div class="timeline-intro"><p>Explore history, civilizations, treaties and diplomatic milestones. Modern country tags give context, not historical borders.</p><p class="note">Negative years mean BCE; positive years mean CE. Ancient ranges are approximate. Treaty spans may join adoption and entry-into-force milestones. Dated developments are an archive, not live news.</p></div><div class="timeline-filters"><label>Search timeline<input id="timeline-query" type="search" value="${esc(timelineState.query)}" placeholder="Event, person, treaty…"></label><label>Category<select id="timeline-category"><option value="">All dated categories</option>${KNOWLEDGE.metadata.categories.filter(c=>timelineRecords.some(r=>r.category===c.id)).map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join('')}</select></label><label>Country context<select id="timeline-country"><option value="">All countries</option>${allCountries.map(c=>`<option value="${esc(c.code)}">${esc(c.name)}</option>`).join('')}</select></label><label>Start year<input id="timeline-from" type="number" step="1" placeholder="e.g. -3500" value="${esc(timelineState.from)}"></label><label>End year<input id="timeline-to" type="number" step="1" placeholder="e.g. 2026" value="${esc(timelineState.to)}"></label><button id="timeline-reset">Reset timeline</button></div><p id="timeline-status" class="timeline-intro" role="status"></p><ol id="timeline-list" class="timeline-list"></ol><button id="timeline-more" class="load-more">Show more events</button>`);
+ for(const [key,id] of Object.entries({query:'query',category:'category',country:'country',from:'from',to:'to'})){
+  const input=document.getElementById('timeline-'+id);input.value=timelineState[key];input.addEventListener(input.tagName==='SELECT'?'change':'input',()=>{timelineState[key]=input.value;timelineShown=40;renderTimeline()});
+ }
+ document.getElementById('timeline-reset').onclick=()=>{Object.assign(timelineState,{query:'',category:'',country:'',from:'',to:''});openTimeline()};
+ document.getElementById('timeline-more').onclick=()=>{timelineShown+=40;renderTimeline()};renderTimeline();
+}
+document.getElementById('timeline-btn').onclick=openTimeline;
+dialog.addEventListener('close',()=>dialog.classList.remove('timeline-dialog'));
+
+// Country facts and selected-topic depth, reused by every entry point.
+function depthMarkup(r){
+ const sections=Object.entries(r.studySections||{}).filter(([,rows])=>rows.length);
+ const related=(r.relatedIds||[]).map(id=>topicById.get(id)).filter(Boolean);
+ return `${r.snapshotOnly?'<div class="notice">Dated development · '+esc(r.asOf)+'. This is an archive entry, not a live status report.</div>':''}${r.enriched?'<p class="note">Expanded context added: '+esc(r.enriched)+'. Earlier snapshot dates still apply to the original fields.</p>':''}${r.contentBasis?'<p class="note">'+esc(r.contentBasis)+'</p>':''}${sections.length?`<details class="structured-study"><summary>Structured revision guide</summary>${sections.map(([title,rows])=>`<h3>${esc(title)}</h3><ul>${rows.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`).join('')}</details>`:''}${related.length?`<section class="section related-study"><h2>Related study</h2>${related.map(x=>`<button data-related-id="${esc(x.id)}">${esc(x.title)}</button>`).join('')}</section>`:''}`;
+}
+const baseShortCard=shortTopicCard;shortTopicCard=function(r){return baseShortCard(r).replace('<div class="topic-actions">',depthMarkup(r)+'<div class="topic-actions">')};
+const baseWireTopicActions=wireTopicActions;wireTopicActions=function(container){baseWireTopicActions(container);wireRelated(container)};
+function wireRelated(host){host.querySelectorAll('[data-related-id]').forEach(b=>b.onclick=()=>{if(dialog.open)dialog.close();showLocatedTopic(topicById.get(b.dataset.relatedId))})}
+const baseRenderPane=renderPane;renderPane=function(){
+ baseRenderPane();if(!selected)return;const c=records[selected],p=c.extendedProfile||{};
+ const rows=[['Languages',c.languages.join(' · ')||'Not supplied'],['Area',Number.isFinite(c.area)?c.area.toLocaleString()+' km² · cached source definition':'Not supplied'],['Internet domains',(p.tld||[]).join(' · ')||'Not supplied'],['UN regional group',p.unRegionalGroup||'Not supplied'],['Demonym',p.demonyms?.eng?.m||'Not supplied']];
+ document.getElementById('tab-atlas').insertAdjacentHTML('afterbegin',section('Country profile',`<dl class="profile-grid">${rows.map(([label,value])=>`<dt>${esc(label)}</dt><dd>${esc(value)}</dd>`).join('')}</dl><p class="note">${esc(c.profileBasis)} ${link('https://github.com/mledoze/countries','Country-data source')}</p>`));
+};
+
+// Collapsible phone sheet / adjustable desktop and tablet side panel.
+const studyPane=document.getElementById('country-pane'),panelTools=document.querySelector('.panel-toolbar'),panelToggle=document.getElementById('panel-toggle');
+let panelCollapsed=false,currentStudyRecord=null,restoringStudy=false,pendingStudyView=null;
+const studyBackStack=[];
+function studyView(){return {code:selected,topic:!selectionPane.hidden?currentStudyRecord?.id:null,tab:currentTab,transform:{x:transform.x,y:transform.y,k:transform.k},scroll:studyPane.scrollTop,collapsed:panelCollapsed}}
+function updatePanel(){
+ const active=!document.getElementById('details-pane').hidden||!selectionPane.hidden;
+ studyPane.classList.toggle('has-selection',active);panelTools.hidden=!active;
+ studyPane.classList.toggle('panel-collapsed',active&&panelCollapsed);panelToggle.setAttribute('aria-expanded',panelCollapsed?'false':'true');panelToggle.textContent=panelCollapsed?'Expand':'Collapse';panelToggle.setAttribute('aria-label',panelCollapsed?'Expand details':'Collapse details');
+ let back=document.getElementById('panel-back');if(!back){back=document.createElement('button');back.id='panel-back';back.textContent='Previous';panelTools.prepend(back);back.onclick=goStudyBack}back.disabled=studyBackStack.length===0;
+}
+function rememberStudy(view){
+ if(restoringStudy)return;
+ const now=studyView();if(view.code===now.code&&view.topic===now.topic)return;
+ studyBackStack.push(view);if(studyBackStack.length>50)studyBackStack.shift();
+ if(window.history?.pushState){window.history.replaceState({atlasStudy:view},'');window.history.pushState({atlasStudy:studyView()},'')}
+}
+function restoreStudy(view){
+ restoringStudy=true;
+ if(view.code)selectCountry(view.code);else if(view.topic){const r=topicById.get(view.topic)||globalIndex.find(x=>x.record?.id===view.topic)?.record;if(r)showLocatedTopic(r)}else {chooseHierarchyCategory('');closePane()}
+ if(view.tab&&view.code)document.querySelector(`[data-tab="${view.tab}"]`)?.click();
+ svg.interrupt().call(zoom.transform,d3.zoomIdentity.translate(view.transform.x,view.transform.y).scale(view.transform.k));
+ studyPane.scrollTop=view.scroll;panelCollapsed=view.collapsed;restoringStudy=false;updatePanel();
+}
+function goStudyBack(){
+ if(!studyBackStack.length)return false;
+ if(window.history?.back){window.history.back()}else restoreStudy(studyBackStack.pop());return true;
+}
+window.ATLAS_BACK=goStudyBack;
+if(window.history?.replaceState)window.history.replaceState({atlasStudy:studyView()},'');
+window.addEventListener('popstate',e=>{if(e.state?.atlasStudy){studyBackStack.pop();restoreStudy(e.state.atlasStudy)}});
+const studyChooseCategory=chooseHierarchyCategory;chooseHierarchyCategory=function(id){if(!restoringStudy&&(selected||!selectionPane.hidden))pendingStudyView=studyView();studyChooseCategory(id)};
+const studyApplyItem=applyHierarchyItem;applyHierarchyItem=function(key){if(!restoringStudy&&!pendingStudyView&&(selected||!selectionPane.hidden))pendingStudyView=studyView();studyApplyItem(key)};
+const studySelectCountry=selectCountry;selectCountry=function(code){if(!records[code])return;const before=pendingStudyView||studyView();pendingStudyView=null;studySelectCountry(code);currentStudyRecord=null;panelCollapsed=false;rememberStudy(before);updatePanel()};
+const studyShowSelection=showSelectionPanel;showSelectionPanel=function(choice){
+ const before=pendingStudyView||studyView();pendingStudyView=null;studyShowSelection(choice);currentStudyRecord=choice.record;panelCollapsed=false;
+ selectionPane.querySelector('.pane-body').insertAdjacentHTML('beforeend',depthMarkup(choice.record));wireRelated(selectionPane);
+ rememberStudy(before);updatePanel();
+};
+const studyClosePane=closePane;closePane=function(){studyClosePane();currentStudyRecord=null;panelCollapsed=false;updatePanel()};
+panelToggle.onclick=()=>{panelCollapsed=!panelCollapsed;updatePanel()};
+document.getElementById('panel-map').onclick=()=>{panelCollapsed=true;updatePanel();document.querySelector('.map-area').scrollIntoView({behavior:'auto',block:'start'})};
+document.getElementById('panel-width').addEventListener('input',e=>{
+ const center=projection.invert(transform.invert([width/2,height/2])),scale=transform.k;
+ document.documentElement.style.setProperty('--panel',Math.min(620,Math.max(300,Number(e.target.value)))+'px');
+ requestAnimationFrame(()=>{resize();const pt=projection(center);svg.interrupt().call(zoom.transform,d3.zoomIdentity.translate(width/2-scale*pt[0],height/2-scale*pt[1]).scale(scale))});
+});
+updatePanel();
 
  window.ATLAS_READY=true;
 }catch(error){const loading=document.getElementById('loading');loading.style.display='grid';loading.innerHTML='<span>Atlas could not load.<br><small id="load-error-detail"></small><br>For the Pages edition, use GitHub Pages or a local web server. For double-click review, open world-atlas-preview.html.</span>';document.getElementById('load-error-detail').textContent=error.message;console.error(error);window.ATLAS_LOAD_ERROR=error.message;}

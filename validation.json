@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "method": "Node DOM-emulation runtime and static asset checks; not a live browser",
-  "checks": 50,
+  "checks": 59,
   "details": [
     "Static edition loads four local JSON files under a GitHub project subpath",
     "All original country polygons render; details initially hidden",
@@ -51,19 +51,30 @@
     "History search accepts requested spelling variants and separates ambiguous names",
     "Revolution Locate from Topic Explorer opens dated matching facts in side panel",
     "Single-finger swipes do not pan or consume page scrolling; two fingers pan and pinch",
+    "All twelve expansion categories have six substantive sourced records",
+    "Unified search joins capitals currencies country names topics books and aliases",
+    "Unified search results open topic details without a map coordinate",
+    "Timeline uses real chronological ordering, BCE ranges, filters and empty states",
+    "Timeline event opens the same country-linked details and map marker",
+    "Panel collapse and map button preserve selected content and transform",
+    "Previous restores country selection, tab and map transform",
+    "Country profiles and existing records gain source-backed depth and related links",
+    "Current-affairs archive labels scope and all timeline intervals are valid",
     "Standalone companion runs without fetching files",
     "A failed local data load gives a useful visible error"
   ],
   "counts": {
-    "curated": 485,
+    "curated": 557,
     "nobelAwards": 1033,
     "nobelLaureates": 1025,
     "parliaments": 193,
     "controlLines": 25,
-    "controlRouteSegments": 15
+    "controlRouteSegments": 15,
+    "newStudyRecords": 72,
+    "enrichedExistingRecords": 21
   },
-  "categories": 18,
+  "categories": 30,
   "sourceSnapshot": "2026-10-08; control lines 2026-10-09",
-  "built": "2026-10-14",
-  "browserQA": "Fresh visual QA unavailable: browser automation failed to initialize; previous browser reports retained separately. Physical Android installation not tested."
+  "built": "2026-10-27",
+  "browserQA": "See study-expansion-validation.json for current browser checks. Physical Android installation not tested."
 }

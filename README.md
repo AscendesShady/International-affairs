@@ -113,3 +113,15 @@ Touch maps require two fingers for panning and pinch zoom. A one-finger swipe sc
 The companion signed APK bundles the same site for offline first launch on Android 8 or newer. It is provided separately from this public folder. Only this folder's contents belong in the GitHub repository.
 
 Current checks: 50 runtime/static checks and 13 PWA/offline checks passed. Two-finger behavior was checked using synthetic touch events. Fresh visual and physical Android installation checks were unavailable for this release; earlier browser reports describe earlier checks.
+
+## Search, timeline and study expansion — 27 October 2026
+
+- **Unified search:** the header searches countries, capitals, currency names/codes, aliases, people, authors, books, geography, institutions, history and Nobel records. Results are grouped; Enter opens the first result and arrow keys navigate. Search runs locally and works offline.
+- **History timeline:** Menu → Timeline on phones, or Timeline in the desktop header. Search and filter by category, country context and year interval. Negative years mean BCE; ancient ranges are marked approximate. Each event opens the same details panel and map locator where available. The timeline has 129 entries; chronological spans can join separate treaty milestones and do not imply continuous conflict or unchanging borders.
+- **Responsive details:** phones use a collapsible bottom sheet with Previous, Collapse/Expand and Map controls. Tablets and desktops retain a side panel with a width slider. Previous/browser Back restores the prior selection, tab and map view. Touch map panning still requires two fingers.
+- **Twelve new sections:** Climate & environment; Economics & trade; International law & courts; Bangladesh & the world; Rivers & shared waters; Ports & strategic routes; Political & diplomatic history; Security & peace processes; Physical Earth; Culture & heritage; Development indicators; Dated world developments. Each has six source-linked entries: 72 additions, bringing the curated topic/parliament records to 557, plus 1,033 Nobel award records.
+- **Deeper reference material:** 21 existing records receive added subject facts and sources; 151 records have structured revision guides. Country profiles expose cached languages, area, domains, UN regional group and demonym where supplied. Related-study links connect context across categories. Original source dates and new enrichment dates remain distinct.
+
+Dated world developments are an archive, not live news. New indicator entries teach definitions and dated examples rather than inventing current country rankings. The earlier Nobel, country and parliamentary datasets retain their original snapshot dates. Source and licence limitations remain applicable; external reference pages require internet.
+
+Verification: 59 runtime/static checks and 13 PWA/offline checks. See `study-expansion-validation.json` for browser coverage and device-testing limits. The companion Android APK is versionCode 2 / 2026.10.27, signed using the original key, with the same site bundled for offline first launch.

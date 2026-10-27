@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-27",
+  "status": "passed within stated scope",
+  "runtimeChecks": 59,
+  "pwaChecks": 13,
+  "categories": 30,
+  "counts": {
+    "curated": 557,
+    "nobelAwards": 1033,
+    "nobelLaureates": 1025,
+    "parliaments": 193,
+    "controlLines": 25,
+    "controlRouteSegments": 15,
+    "newStudyRecords": 72,
+    "enrichedExistingRecords": 21
+  },
+  "timelineEntries": 129,
+  "structuredRevisionGuides": 151,
+  "browser": {
+    "engine": "Connected in-app Chromium browser",
+    "viewports": [
+      [
+        320,
+        740
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        1024,
+        1366
+      ],
+      [
+        1366,
+        900
+      ]
+    ],
+    "results": [
+      "No document horizontal overflow at tested widths.",
+      "Dhaka returns Bangladesh with capital and currency; Enter opens BBNJ topic details.",
+      "Climate category exposes six new study choices; Paris opens matching side-panel facts.",
+      "Timeline search for French Revolution returns the dated 1789\u20131799 entry.",
+      "Phone Collapse/Expand controls work; all three toolbar buttons are 44px tall at 320px.",
+      "Tablet width slider changes the panel without losing the displayed zoom scale.",
+      "Previous restores Bangladesh, the Topics tab and the exact displayed 24\u00d7 zoom.",
+      "An already-cached older release updates through Update app and loads the new search/categories.",
+      "No captured browser console errors in the tested final-session flows."
+    ]
+  },
+  "screenshots": [
+    "Source/outputs/study-phone-2026-10-27.png",
+    "Source/outputs/timeline-desktop-2026-10-27.png"
+  ],
+  "contentScope": "72 new selective study records; 21 existing records receive factual enrichment. 151 records have structured guides, including rearranged existing facts. Original country, Nobel and IPU snapshots are not comprehensively refreshed.",
+  "sourceAudit": "New-link HTTP audit retained privately at Source/work/expansion-source-audit.json. Some sites block automated access, time out, or fail local TLS validation. Link checks do not prove factual accuracy. No confirmed 404 remains in the final audit.",
+  "boundaries": [
+    "Physical Android installation and native WebView runtime were not tested.",
+    "Two-finger handlers were regression-tested with synthetic touch events; physical multi-touch delivery remains untested.",
+    "Browser resizing is not physical phone/tablet testing.",
+    "Dated world developments are an archive, not live news. Country tags and point locators are study context, not surveyed or legal borders."
+  ]
+}
