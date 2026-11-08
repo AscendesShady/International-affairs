@@ -1,10 +1,11 @@
 {
   "status": "passed",
-  "checks": 13,
+  "checks": 14,
   "details": [
     "Manifest provides standalone mode, project-relative id/start/scope and 192/512 icons",
     "Every icon is a real PNG of the declared dimensions",
     "HTML links manifest, theme, touch icon and PWA client",
+    "Android manual check opens only the native action and leaves browser PWA registration alone",
     "Precache succeeds for the complete app shell, scripts, icons and all five data files",
     "All 16 cached URLs return offline without making any network request",
     "Offline data reads tolerate cache-busting query strings",
@@ -18,6 +19,6 @@
   ],
   "method": "Manifest/icon checks and service-worker lifecycle/offline fetch tests using real bundled asset bytes",
   "precacheURLs": 16,
-  "cacheVersion": "4ac3df6ceb1139f1",
+  "cacheVersion": "c61f77cad58e8f0b",
   "phoneInstallation": "Manifest and offline behaviour verified; physical phone installation is user-performed."
 }

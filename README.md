@@ -125,3 +125,7 @@ Current checks: 50 runtime/static checks and 13 PWA/offline checks passed. Two-f
 Dated world developments are an archive, not live news. New indicator entries teach definitions and dated examples rather than inventing current country rankings. The earlier Nobel, country and parliamentary datasets retain their original snapshot dates. Source and licence limitations remain applicable; external reference pages require internet.
 
 Verification: 59 runtime/static checks and 13 PWA/offline checks. See `study-expansion-validation.json` for browser coverage and device-testing limits. The companion Android APK is versionCode 2 / 2026.10.27, signed using the original key, with the same site bundled for offline first launch.
+
+## Android update checking — 9 November 2026
+
+[Download the signed Android APK](https://github.com/AscendesShady/International-affairs/releases/latest/download/World-Study-Atlas.apk) (Android 8 or later). Starting with versionCode 3, the app checks for a newer release in the background when it opens online. You can also choose **Check for update** in the Android app menu. The atlas still opens offline. When an update is available, tap **Download APK**, then open the downloaded file to install it. Browser installations continue to update through the PWA's own **Update app** control.

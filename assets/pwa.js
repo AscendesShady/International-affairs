@@ -8,7 +8,11 @@
   if (location.hostname === 'appassets.androidplatform.net') {
     if (status) status.textContent = 'Offline · bundled Android app';
     if (installButton) installButton.hidden = true;
-    if (updateButton) updateButton.hidden = true;
+    if (updateButton) {
+      updateButton.hidden = false;
+      updateButton.textContent = 'Check for update';
+      updateButton.addEventListener('click', () => location.assign('/assets/atlas/__check-update'));
+    }
     return;
   }
   if (!('serviceWorker' in navigator)) return;
