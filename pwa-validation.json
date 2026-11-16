@@ -19,6 +19,6 @@
   ],
   "method": "Manifest/icon checks and service-worker lifecycle/offline fetch tests using real bundled asset bytes",
   "precacheURLs": 16,
-  "cacheVersion": "c61f77cad58e8f0b",
+  "cacheVersion": "89d00aaa5080bec9",
   "phoneInstallation": "Manifest and offline behaviour verified; physical phone installation is user-performed."
 }

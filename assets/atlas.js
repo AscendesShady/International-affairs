@@ -163,6 +163,7 @@ function wireTopicActions(container){
  container.querySelectorAll('[data-members-topic]').forEach(b=>b.onclick=()=>{const r=topicById.get(b.dataset.membersTopic);if(dialog.open)dialog.close();dialog.classList.remove('topics-dialog');showMembershipSelection(r.title)});
 }
 function locateTopic(r,animate=true){
+ if(r.countryFocus){activeMapPoint=r;focusCountry(r.countryFocus,animate);return}
  if(r.category==='regions'){focusRegion(r,animate);return}
  activeMapPoint=r;
  const pt=projection(r.xy),k=10,t=d3.zoomIdentity.translate(width*.5-k*pt[0],height*.45-k*pt[1]).scale(k);
@@ -505,7 +506,9 @@ results.addEventListener('keydown',e=>{
 
 // Timeline is an accessible chronological list, not a graph of modern borders.
 const timelineRecords=KNOWLEDGE.records.filter(r=>Number.isFinite(r.timelineStart)&&Number.isFinite(r.timelineEnd));
-let timelineShown=40;
+const timelineBody=document.getElementById('dialog-body');
+const timelinePageSize=40;
+let timelineShown=timelinePageSize,timelineScroll=0,timelineAnchor=null;
 const timelineState={query:'',category:'',country:'',from:'',to:''};
 function yearLabel(y){return y<0?Math.abs(y)+' BCE':y===0?'1 BCE / 1 CE boundary':y+' CE'}
 function timelineMatches(state=timelineState){
@@ -514,24 +517,57 @@ function timelineMatches(state=timelineState){
  return timelineRecords.filter(r=>(!state.category||r.category===state.category)&&(!state.country||r.countries.includes(state.country))&&(!q||foldSearch(topicSearch.get(r.id)).includes(q))&&r.timelineStart<=to&&r.timelineEnd>=from)
   .sort((a,b)=>a.timelineStart-b.timelineStart||a.timelineEnd-b.timelineEnd||a.title.localeCompare(b.title));
 }
+function timelineCountry(r){return r.timelineCountry||r.countries.find(code=>records[code]?.xy)}
+function openTimelineEvent(button){
+ const r=topicById.get(button.dataset.timelineId);
+ timelineScroll=timelineBody.scrollTop||0;
+ timelineAnchor={id:r.id,offset:button.getBoundingClientRect().top-timelineBody.getBoundingClientRect().top};
+ dialog.close();
+ showTimelineEvent(r);
+ if(window.innerWidth<=760)stage.scrollIntoView({block:'start',behavior:'instant'});
+}
+function showTimelineEvent(r){
+ const code=timelineCountry(r);
+ showLocatedTopic(r);
+ if(code){
+  activeGroup={name:r.title,members:[...new Set([code,...r.countries])]};
+  setGroupHighlight();
+  if(!r.xy)locateTopic({...r,countryFocus:code},false);
+  layoutLabels();
+ }
+ if(r.xy||code)selectionStatus.textContent=code?`${r.title} · ${records[code].name} map context`:`${r.title} · Event location`;
+ const back=document.createElement('button');back.type='button';back.id='return-to-timeline';back.className='timeline-return';back.textContent='Back to timeline';back.onclick=openTimeline;
+ selectionPane.querySelector('.pane-head')?.append(back);
+}
 function renderTimeline(){
  const list=timelineMatches(),invalid=timelineState.from!==''&&timelineState.to!==''&&Number(timelineState.from)>Number(timelineState.to);
  document.getElementById('timeline-status').textContent=invalid?'Start year must not exceed end year.':`${list.length} entries · ordered by start year · showing ${Math.min(list.length,timelineShown)}`;
- document.getElementById('timeline-list').innerHTML=list.slice(0,timelineShown).map(r=>`<li><div class="timeline-date">${esc(yearLabel(r.timelineStart))}${r.timelineEnd!==r.timelineStart?' – '+esc(yearLabel(r.timelineEnd)):''}${r.timelineApproximate?' · approximate':''}</div><article><span class="eyebrow">${esc(categoryLabels.get(r.category))}</span><h3>${esc(r.title)}</h3><p>${esc(r.period)}</p><p>${esc(r.summary)}</p><button data-timeline-id="${esc(r.id)}">Open details${r.xy?' & map':''}</button></article></li>`).join('')||'<li class="timeline-empty">No dated entries match these filters.</li>';
+ document.getElementById('timeline-list').innerHTML=list.slice(0,timelineShown).map(r=>`<li><div class="timeline-date">${esc(yearLabel(r.timelineStart))}${r.timelineEnd!==r.timelineStart?' – '+esc(yearLabel(r.timelineEnd)):''}${r.timelineApproximate?' · approximate':''}</div><article><span class="eyebrow">${esc(categoryLabels.get(r.category))}</span><h3>${esc(r.title)}</h3><p>${esc(r.period)}</p><p>${esc(r.summary)}</p><button data-timeline-id="${esc(r.id)}" aria-label="${r.xy||timelineCountry(r)?'Open map and details':'Open details'}: ${esc(r.title)}">${r.xy||timelineCountry(r)?'Open map &amp; details':'Open details'}</button></article></li>`).join('')||'<li class="timeline-empty">No dated entries match these filters.</li>';
  document.getElementById('timeline-more').hidden=list.length<=timelineShown;
- document.querySelectorAll('[data-timeline-id]').forEach(b=>b.onclick=()=>{const r=topicById.get(b.dataset.timelineId);dialog.close();showLocatedTopic(r)});
+ timelineBody.querySelectorAll('[data-timeline-id]').forEach(b=>b.onclick=()=>openTimelineEvent(b));
 }
+function clearTimelinePosition(){timelineShown=timelinePageSize;timelineScroll=0;timelineAnchor=null;timelineBody.scrollTop=0}
 function openTimeline(){
- dialog.classList.remove('topics-dialog');dialog.classList.add('timeline-dialog');timelineShown=40;
+ dialog.classList.remove('topics-dialog');dialog.classList.add('timeline-dialog');
  openDialog('History timeline',`<div class="timeline-intro"><p>Explore history, civilizations, treaties and diplomatic milestones. Modern country tags give context, not historical borders.</p><p class="note">Negative years mean BCE; positive years mean CE. Ancient ranges are approximate. Treaty spans may join adoption and entry-into-force milestones. Dated developments are an archive, not live news.</p></div><div class="timeline-filters"><label>Search timeline<input id="timeline-query" type="search" value="${esc(timelineState.query)}" placeholder="Event, person, treaty…"></label><label>Category<select id="timeline-category"><option value="">All dated categories</option>${KNOWLEDGE.metadata.categories.filter(c=>timelineRecords.some(r=>r.category===c.id)).map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join('')}</select></label><label>Country context<select id="timeline-country"><option value="">All countries</option>${allCountries.map(c=>`<option value="${esc(c.code)}">${esc(c.name)}</option>`).join('')}</select></label><label>Start year<input id="timeline-from" type="number" step="1" placeholder="e.g. -3500" value="${esc(timelineState.from)}"></label><label>End year<input id="timeline-to" type="number" step="1" placeholder="e.g. 2026" value="${esc(timelineState.to)}"></label><button id="timeline-reset">Reset timeline</button></div><p id="timeline-status" class="timeline-intro" role="status"></p><ol id="timeline-list" class="timeline-list"></ol><button id="timeline-more" class="load-more">Show more events</button>`);
  for(const [key,id] of Object.entries({query:'query',category:'category',country:'country',from:'from',to:'to'})){
-  const input=document.getElementById('timeline-'+id);input.value=timelineState[key];input.addEventListener(input.tagName==='SELECT'?'change':'input',()=>{timelineState[key]=input.value;timelineShown=40;renderTimeline()});
+  const input=document.getElementById('timeline-'+id);input.value=timelineState[key];input.addEventListener(input.tagName==='SELECT'?'change':'input',()=>{timelineState[key]=input.value;clearTimelinePosition();renderTimeline()});
  }
- document.getElementById('timeline-reset').onclick=()=>{Object.assign(timelineState,{query:'',category:'',country:'',from:'',to:''});openTimeline()};
- document.getElementById('timeline-more').onclick=()=>{timelineShown+=40;renderTimeline()};renderTimeline();
+ document.getElementById('timeline-reset').onclick=()=>{Object.assign(timelineState,{query:'',category:'',country:'',from:'',to:''});clearTimelinePosition();openTimeline()};
+ document.getElementById('timeline-more').onclick=()=>{const top=timelineBody.scrollTop;timelineShown+=timelinePageSize;renderTimeline();timelineBody.scrollTop=top};
+ renderTimeline();
+ const anchor=timelineAnchor&&[...timelineBody.querySelectorAll('[data-timeline-id]')].find(b=>b.dataset.timelineId===timelineAnchor.id);
+ timelineBody.scrollTop=timelineScroll;
+ if(anchor){
+  anchor.focus({preventScroll:true});
+  timelineBody.scrollTop+=anchor.getBoundingClientRect().top-timelineBody.getBoundingClientRect().top-timelineAnchor.offset;
+ }
 }
 document.getElementById('timeline-btn').onclick=openTimeline;
-dialog.addEventListener('close',()=>dialog.classList.remove('timeline-dialog'));
+timelineBody.addEventListener('scroll',()=>{
+ if(dialog.open&&dialog.classList.contains('timeline-dialog')){timelineScroll=timelineBody.scrollTop;timelineAnchor=null}
+});
+dialog.addEventListener('close',()=>{if(!dialog.open)dialog.classList.remove('timeline-dialog')});
 
 // Country facts and selected-topic depth, reused by every entry point.
 function depthMarkup(r){

@@ -129,3 +129,7 @@ Verification: 59 runtime/static checks and 13 PWA/offline checks. See `study-exp
 ## Android update checking — 9 November 2026
 
 [Download the signed Android APK](https://github.com/AscendesShady/International-affairs/releases/latest/download/World-Study-Atlas.apk) (Android 8 or later). Starting with versionCode 3, the app checks for a newer release in the background when it opens online. You can also choose **Check for update** in the Android app menu. The atlas still opens offline. When an update is available, tap **Download APK**, then open the downloaded file to install it. Browser installations continue to update through the PWA's own **Update app** control.
+
+## Expanded timeline — 16 November 2026
+
+The timeline has 164 entries, including 35 new events with sources and geographic context. Select **Open map & details** to locate an event and highlight related countries on today's map. Older entries without a site marker zoom to a related country instead. Select **Timeline** or **Back to timeline** to resume at the same spot in the list, with your filters and the entries you loaded still in place. Changing a filter or choosing **Reset timeline** starts a new view. This session behavior is available in the PWA and the Android v4 release.
