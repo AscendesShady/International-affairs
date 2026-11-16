@@ -509,12 +509,12 @@ const timelineRecords=KNOWLEDGE.records.filter(r=>Number.isFinite(r.timelineStar
 const timelineBody=document.getElementById('dialog-body');
 const timelinePageSize=40;
 let timelineShown=timelinePageSize,timelineScroll=0,timelineAnchor=null;
-const timelineState={query:'',category:'',country:'',from:'',to:''};
+const timelineState={query:'',category:'',country:'',from:'',to:'',exam:false};
 function yearLabel(y){return y<0?Math.abs(y)+' BCE':y===0?'1 BCE / 1 CE boundary':y+' CE'}
 function timelineMatches(state=timelineState){
  const q=foldSearch(state.query),from=state.from===''?-Infinity:Number(state.from),to=state.to===''?Infinity:Number(state.to);
  if(from>to)return [];
- return timelineRecords.filter(r=>(!state.category||r.category===state.category)&&(!state.country||r.countries.includes(state.country))&&(!q||foldSearch(topicSearch.get(r.id)).includes(q))&&r.timelineStart<=to&&r.timelineEnd>=from)
+ return timelineRecords.filter(r=>(!state.exam||r.examHistory)&&(!state.category||r.category===state.category)&&(!state.country||r.countries.includes(state.country))&&(!q||foldSearch(topicSearch.get(r.id)).includes(q))&&r.timelineStart<=to&&r.timelineEnd>=from)
   .sort((a,b)=>a.timelineStart-b.timelineStart||a.timelineEnd-b.timelineEnd||a.title.localeCompare(b.title));
 }
 function timelineCountry(r){return r.timelineCountry||r.countries.find(code=>records[code]?.xy)}
@@ -547,13 +547,19 @@ function renderTimeline(){
  timelineBody.querySelectorAll('[data-timeline-id]').forEach(b=>b.onclick=()=>openTimelineEvent(b));
 }
 function clearTimelinePosition(){timelineShown=timelinePageSize;timelineScroll=0;timelineAnchor=null;timelineBody.scrollTop=0}
+function resetTimeline(exam=false){Object.assign(timelineState,{query:'',category:'',country:'',from:'',to:'',exam});clearTimelinePosition()}
 function openTimeline(){
  dialog.classList.remove('topics-dialog');dialog.classList.add('timeline-dialog');
  openDialog('History timeline',`<div class="timeline-intro"><p>Explore history, civilizations, treaties and diplomatic milestones. Modern country tags give context, not historical borders.</p><p class="note">Negative years mean BCE; positive years mean CE. Ancient ranges are approximate. Treaty spans may join adoption and entry-into-force milestones. Dated developments are an archive, not live news.</p></div><div class="timeline-filters"><label>Search timeline<input id="timeline-query" type="search" value="${esc(timelineState.query)}" placeholder="Event, person, treaty…"></label><label>Category<select id="timeline-category"><option value="">All dated categories</option>${KNOWLEDGE.metadata.categories.filter(c=>timelineRecords.some(r=>r.category===c.id)).map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join('')}</select></label><label>Country context<select id="timeline-country"><option value="">All countries</option>${allCountries.map(c=>`<option value="${esc(c.code)}">${esc(c.name)}</option>`).join('')}</select></label><label>Start year<input id="timeline-from" type="number" step="1" placeholder="e.g. -3500" value="${esc(timelineState.from)}"></label><label>End year<input id="timeline-to" type="number" step="1" placeholder="e.g. 2026" value="${esc(timelineState.to)}"></label><button id="timeline-reset">Reset timeline</button></div><p id="timeline-status" class="timeline-intro" role="status"></p><ol id="timeline-list" class="timeline-list"></ol><button id="timeline-more" class="load-more">Show more events</button>`);
  for(const [key,id] of Object.entries({query:'query',category:'category',country:'country',from:'from',to:'to'})){
   const input=document.getElementById('timeline-'+id);input.value=timelineState[key];input.addEventListener(input.tagName==='SELECT'?'change':'input',()=>{timelineState[key]=input.value;clearTimelinePosition();renderTimeline()});
  }
- document.getElementById('timeline-reset').onclick=()=>{Object.assign(timelineState,{query:'',category:'',country:'',from:'',to:''});clearTimelinePosition();openTimeline()};
+ const examSwitch=document.createElement('label');examSwitch.className='timeline-exam-filter';
+ examSwitch.innerHTML='<input id="timeline-exam" type="checkbox"><span>Exam history only</span>';
+ timelineBody.querySelector('.timeline-filters').append(examSwitch);
+ const examInput=examSwitch.querySelector('input');examInput.checked=timelineState.exam;
+ examInput.onchange=()=>{timelineState.exam=examInput.checked;clearTimelinePosition();renderTimeline()};
+ document.getElementById('timeline-reset').onclick=()=>{resetTimeline();openTimeline()};
  document.getElementById('timeline-more').onclick=()=>{const top=timelineBody.scrollTop;timelineShown+=timelinePageSize;renderTimeline();timelineBody.scrollTop=top};
  renderTimeline();
  const anchor=timelineAnchor&&[...timelineBody.querySelectorAll('[data-timeline-id]')].find(b=>b.dataset.timelineId===timelineAnchor.id);
@@ -564,6 +570,12 @@ function openTimeline(){
  }
 }
 document.getElementById('timeline-btn').onclick=openTimeline;
+const originalCoverage=document.getElementById('study-btn').onclick;
+document.getElementById('study-btn').onclick=()=>{
+ originalCoverage();
+ timelineBody.insertAdjacentHTML('afterbegin',`<section class="exam-coverage"><h3>International history for the civil service exam</h3><p>The atlas is a revision aid. The 50th preliminary syllabus groups world history with regional and international systems and geopolitics. The written paper also asks for analysis, and current affairs need separate study.</p><button id="open-exam-history" type="button">Open exam history shortlist</button><p class="note">Based on the 50th preliminary syllabus, written subject 007 and sampled question reproductions. ${link('https://github.com/AscendesShady/International-affairs/blob/main/exam-history-coverage.md','Read the coverage and sources')}</p></section>`);
+ document.getElementById('open-exam-history').onclick=()=>{dialog.close();resetTimeline(true);openTimeline()};
+};
 timelineBody.addEventListener('scroll',()=>{
  if(dialog.open&&dialog.classList.contains('timeline-dialog')){timelineScroll=timelineBody.scrollTop;timelineAnchor=null}
 });
@@ -574,6 +586,9 @@ function depthMarkup(r){
  const sections=Object.entries(r.studySections||{}).filter(([,rows])=>rows.length);
  const related=(r.relatedIds||[]).map(id=>topicById.get(id)).filter(Boolean);
  return `${r.snapshotOnly?'<div class="notice">Dated development · '+esc(r.asOf)+'. This is an archive entry, not a live status report.</div>':''}${r.enriched?'<p class="note">Expanded context added: '+esc(r.enriched)+'. Earlier snapshot dates still apply to the original fields.</p>':''}${r.contentBasis?'<p class="note">'+esc(r.contentBasis)+'</p>':''}${sections.length?`<details class="structured-study"><summary>Structured revision guide</summary>${sections.map(([title,rows])=>`<h3>${esc(title)}</h3><ul>${rows.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`).join('')}</details>`:''}${related.length?`<section class="section related-study"><h2>Related study</h2>${related.map(x=>`<button data-related-id="${esc(x.id)}">${esc(x.title)}</button>`).join('')}</section>`:''}`;
+}
+function examPaperNote(r){
+ return r.examPaper?`<p class="note">A related fact appeared in the ${esc(r.examPaper)}th BCS preliminary paper. ${link(r.examPaperUrl,'Question reproduction')}</p>`:'';
 }
 const baseShortCard=shortTopicCard;shortTopicCard=function(r){return baseShortCard(r).replace('<div class="topic-actions">',depthMarkup(r)+'<div class="topic-actions">')};
 const baseWireTopicActions=wireTopicActions;wireTopicActions=function(container){baseWireTopicActions(container);wireRelated(container)};
@@ -620,7 +635,7 @@ const studyApplyItem=applyHierarchyItem;applyHierarchyItem=function(key){if(!res
 const studySelectCountry=selectCountry;selectCountry=function(code){if(!records[code])return;const before=pendingStudyView||studyView();pendingStudyView=null;studySelectCountry(code);currentStudyRecord=null;panelCollapsed=false;rememberStudy(before);updatePanel()};
 const studyShowSelection=showSelectionPanel;showSelectionPanel=function(choice){
  const before=pendingStudyView||studyView();pendingStudyView=null;studyShowSelection(choice);currentStudyRecord=choice.record;panelCollapsed=false;
- selectionPane.querySelector('.pane-body').insertAdjacentHTML('beforeend',depthMarkup(choice.record));wireRelated(selectionPane);
+ selectionPane.querySelector('.pane-body').insertAdjacentHTML('beforeend',examPaperNote(choice.record)+depthMarkup(choice.record));wireRelated(selectionPane);
  rememberStudy(before);updatePanel();
 };
 const studyClosePane=closePane;closePane=function(){studyClosePane();currentStudyRecord=null;panelCollapsed=false;updatePanel()};

@@ -133,3 +133,7 @@ Verification: 59 runtime/static checks and 13 PWA/offline checks. See `study-exp
 ## Expanded timeline — 16 November 2026
 
 The timeline has 164 entries, including 35 new events with sources and geographic context. Select **Open map & details** to locate an event and highlight related countries on today's map. Older entries without a site marker zoom to a related country instead. Select **Timeline** or **Back to timeline** to resume at the same spot in the list, with your filters and the entries you loaded still in place. Changing a filter or choosing **Reset timeline** starts a new view. This session behavior is available in the PWA and the Android v4 release.
+
+## International history exam review — 16 November 2026
+
+The timeline now has 190 entries: 25 new source-linked records and one existing record added to the chronology. **Timeline → Exam history only** shows an 80-entry shortlist based on the 50th preliminary syllabus, written subject 007, and sampled papers. **Topic coverage → Open exam history shortlist** opens the same view. Source notes distinguish reproduced questions from historical evidence. For the evidence and what still needs separate study, see [international history exam coverage](exam-history-coverage.md). This is a study aid, not complete exam preparation.

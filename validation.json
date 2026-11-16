@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "method": "Node DOM-emulation runtime and static asset checks; not a live browser",
-  "checks": 62,
+  "checks": 64,
   "details": [
     "Static edition loads four local JSON files under a GitHub project subpath",
     "All original country polygons render; details initially hidden",
@@ -56,9 +56,11 @@
     "Unified search results open topic details without a map coordinate",
     "Timeline uses real chronological ordering, BCE ranges, filters and empty states",
     "Timeline event opens the same country-linked details and map marker",
-    "Every new timeline event has a valid date, location, country and source",
+    "Timeline additions have valid dates, locations, country tags and sources",
     "Timeline resumes past the first page and keeps its country/date filters after a map click",
     "A timeline entry without a point focuses a related country and keeps the event details",
+    "Exam history opens from Topic coverage, retains its filter on return, and links the paper separately",
+    "Study cues distinguish the exam prompt from the primary historical facts",
     "Panel collapse and map button preserve selected content and transform",
     "Previous restores country selection, tab and map transform",
     "Country profiles and existing records gain source-backed depth and related links",
@@ -67,7 +69,7 @@
     "A failed local data load gives a useful visible error"
   ],
   "counts": {
-    "curated": 592,
+    "curated": 617,
     "nobelAwards": 1033,
     "nobelLaureates": 1025,
     "parliaments": 193,
@@ -76,10 +78,12 @@
     "newStudyRecords": 72,
     "enrichedExistingRecords": 21,
     "timelineAdditions": 35,
-    "timelineEntries": 164
+    "examHistoryAdditions": 25,
+    "examHistoryEntries": 80,
+    "timelineEntries": 190
   },
   "categories": 30,
-  "sourceSnapshot": "Base 2026-10-08; history 2026-10-13; study expansion 2026-10-27; timeline additions 2026-11-16. Recent developments are dated archive entries.",
+  "sourceSnapshot": "Base 2026-10-08; history 2026-10-13; study expansion 2026-10-27; timeline and exam-history review 2026-11-16. Recent developments are dated archive entries.",
   "built": "2026-11-16",
   "browserQA": "DOM emulation does not verify real scroll geometry or physical Android installation."
 }
